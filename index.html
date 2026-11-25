@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESG Mapper — от устойчивого развития к финансовой отчётности</title>
+  <meta name="description" content="Учебный инструмент связи ESG-показателей со статьями финансовой отчётности: 12 кейсов, четыре механизма учёта и пять вопросов для самопроверки.">
+  <meta name="color-scheme" content="light">
+  <meta property="og:title" content="ESG Mapper">
+  <meta property="og:description" content="Как ESG-события отражаются в финансовой отчётности.">
+  <meta property="og:image" content="assets/og-esg-mapper.jpg">
+  <meta property="og:url" content="https://SaroyanAram.github.io/esg-mapper/">
+  <link rel="canonical" href="https://SaroyanAram.github.io/esg-mapper/">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="scanner.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#home">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 5.5h18M3 12h18M3 18.5h18" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="13.5" y="9.5" width="7.5" height="5" fill="#15803D"/>
+        </svg>
+        <span>ESG Mapper</span>
+      </a>
+
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        Меню
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Основная навигация">
+        <ul>
+          <li><a href="#home">Главная</a></li>
+          <li><a href="#mechanisms">Механизмы</a></li>
+          <li><a href="#catalog">Каталог</a></li>
+          <li><a href="#quiz">Квиз</a></li>
+          <li><a href="#methodology">Методология</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="shell hero-inner">
+        <div class="hero-copy">
+          <h1 id="hero-title">ESG Mapper: от устойчивого развития к финансовой отчётности</h1>
+          <p class="hero-desc" id="hero-desc">Узнайте, как экологические, социальные и управленческие факторы влияют на активы, обязательства, прибыль и денежные потоки компании. Разберите 12 практических кейсов и проверьте свои знания.</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#catalog">Изучить ESG-кейсы</a>
+            <a class="btn btn-secondary" href="#quiz">Проверить знания</a>
+          </div>
+
+        </div>
+
+        <div class="hero-figure">
+          <section class="scanner" aria-labelledby="scanner-title" data-report="balance">
+            <header class="scanner-head">
+              <div>
+                <p class="scanner-kicker">Учебный кейс 02</p>
+                <h2 class="scanner-title" id="scanner-title">Очистное оборудование</h2>
+              </div>
+              <span class="scanner-mark" aria-hidden="true"></span>
+            </header>
+            <div class="scanner-stage" aria-hidden="true">
+              <div class="scanner-art">
+                <img src="assets/scanner-960.webp" srcset="assets/scanner-640.webp 640w, assets/scanner-960.webp 960w"
+                     sizes="(min-width: 1024px) 535px, 95vw"
+                     width="1000" height="510" alt="" fetchpriority="high">
+                <span class="scanner-iris scanner-iris-left"></span>
+                <span class="scanner-iris scanner-iris-right"></span>
+              </div>
+              <span class="scanner-highlight"></span>
+            </div>
+
+            <div class="scanner-console">
+              <div class="scanner-tabs" aria-label="Форма отчётности">
+                <button id="scanner-tab-balance" type="button" data-report="balance">Баланс</button>
+                <button id="scanner-tab-income" type="button" data-report="income">ОФР</button>
+                <button id="scanner-tab-cashflow" type="button" data-report="cashflow">ОДДС</button>
+              </div>
+              <div class="scanner-readout">
+                <div class="scanner-report" id="scanner-report-balance">
+                  <p>На дату покупки при полной оплате</p>
+                  <dl>
+                    <dt>Основные средства</dt><dd>+10 млн ₽</dd>
+                    <dt>Денежные средства</dt><dd>−10 млн ₽</dd>
+                  </dl>
+                </div>
+                <div class="scanner-report" id="scanner-report-income" hidden>
+                  <p>За полный год. Линейный метод, срок 10 лет, ликвидационная стоимость 0 ₽.</p>
+                  <dl><dt>Амортизация</dt><dd>1 млн ₽</dd></dl>
+                  <p class="scanner-report-note">Может входить в стоимость запасов.</p>
+                </div>
+                <div class="scanner-report" id="scanner-report-cashflow" hidden>
+                  <p>На дату оплаты оборудования</p>
+                  <dl><dt>Инвестиционный отток</dt><dd>10 млн ₽</dd></dl>
+                  <p class="scanner-report-note">Начисление амортизации не создаёт оттока.</p>
+                </div>
+              </div>
+              <footer class="scanner-foot">
+                <span>Суммы условные</span>
+                <button class="btn scanner-action" type="button" data-open-case="02">Открыть кейс</button>
+              </footer>
+            </div>
+          </section>
+        </div>
+
+        <div class="hero-details">
+          <ul class="hero-stats">
+            <li><b>12</b><span>ESG-кейсов</span></li>
+            <li><b>4</b><span>механизма учёта</span></li>
+            <li><b>5</b><span>вопросов в квизе</span></li>
+          </ul>
+          <aside class="legend" aria-label="Как читать типы связи">
+            <p id="hero-legend">Прямая связь (П) — ESG-событие приводит к операции или возникновению обязанности, отражаемой в учёте. Косвенная связь (К) — ESG-фактор меняет риски, прогнозы или предпосылки учётных оценок. Один кейс может сочетать оба типа. Это учебная классификация, не терминология МСФО.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="mechanisms" aria-labelledby="mechanisms-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 id="mechanisms-title">Четыре механизма, которые связывают ESG и учёт</h2>
+          <p class="section-lede">Затрата становится расходом, активом или обязанностью. Выберите механизм, чтобы увидеть кейсы, которые через него работают.</p>
+        </div>
+        <div class="bridges" id="bridges-list"></div>
+        <p class="bridge-note" id="bridge-note">Другие механизмы: запасы, финансовые инструменты, раскрытие информации. Четыре моста не охватывают все правила МСФО.</p>
+      </div>
+    </section>
+
+    <section class="section" id="catalog" aria-labelledby="catalog-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 id="catalog-title" tabindex="-1">Каталог ESG-кейсов</h2>
+          <p class="section-lede">Найдите показатель, статью отчётности или стандарт. Фильтры и поиск работают вместе, карточки сохраняют исходный порядок.</p>
+        </div>
+
+        <div class="catalog-tools">
+          <div class="search-row">
+            <div class="search-field">
+              <label class="field-label" for="catalog-search">Поиск по кейсам</label>
+              <input id="catalog-search" type="search" autocomplete="off" spellcheck="false"
+                     placeholder="Например: обесценение, IAS 38, задолженность">
+            </div>
+            <button class="btn btn-secondary" id="catalog-reset" type="button">Сбросить</button>
+          </div>
+
+          <div class="filters-bar">
+            <p class="result-count" id="catalog-count" role="status" aria-live="polite">Загрузка каталога…</p>
+            <button class="filters-toggle" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
+              Фильтры <span class="filters-badge" id="filters-badge" hidden>0</span>
+            </button>
+          </div>
+
+          <div class="filters-panel" id="filters-panel">
+            <div class="filter-group" role="radiogroup" aria-labelledby="filter-esg-label">
+              <p class="filter-label" id="filter-esg-label">ESG</p>
+              <div class="chips" data-filter="category"></div>
+            </div>
+            <div class="filter-group" role="radiogroup" aria-labelledby="filter-mechanism-label">
+              <p class="filter-label" id="filter-mechanism-label">Механизм</p>
+              <div class="chips" data-filter="mechanism"></div>
+            </div>
+            <div class="filter-group" role="radiogroup" aria-labelledby="filter-form-label">
+              <p class="filter-label" id="filter-form-label">Отчётность</p>
+              <div class="chips" data-filter="form"></div>
+            </div>
+            <div class="filter-group" role="radiogroup" aria-labelledby="filter-link-label">
+              <p class="filter-label" id="filter-link-label">Связь</p>
+              <div class="chips" data-filter="link"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="catalog-error" id="catalog-error" hidden>
+          <p>Не удалось загрузить каталог. Обновите страницу</p>
+          <button class="btn btn-primary" id="catalog-retry" type="button">Повторить</button>
+        </div>
+
+        <div class="catalog-results" id="catalog-results" aria-labelledby="catalog-title"></div>
+      </div>
+    </section>
+
+    <section class="section" id="quiz" aria-labelledby="quiz-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 id="quiz-title">Проверьте знания</h2>
+          <p class="section-lede">Пять вопросов по мотивам каталога. Ответ проверяется сразу, в конце - разбор ошибок.</p>
+        </div>
+        <div class="quiz-shell" id="quiz-root">
+          <p class="loading-note">Загрузка вопросов…</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology" aria-labelledby="methodology-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 id="methodology-title">Методология и словарь</h2>
+          <p class="section-lede">Как устроена учебная база, что означают сокращения и где проверять стандарты.</p>
+        </div>
+
+        <div class="method-grid">
+          <div class="method-body" id="methodology-body"></div>
+          <div class="glossary-wrap">
+            <h3 class="subhead">Словарь</h3>
+            <dl class="glossary" id="glossary"></dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <noscript>
+      <div class="shell">
+        <p class="noscript-note">Для работы каталога и квиза нужен JavaScript. Материалы кейсов и вопросы доступны в файле данных сайта.</p>
+      </div>
+    </noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <h2 class="subhead">Источники</h2>
+      <p class="footer-note">Внешние ссылки открываются в новой вкладке. Пункты стандартов приведены для учебных периодов 2026 года.</p>
+      <ul class="sources-list" id="sources-list"></ul>
+      <p class="footer-credit">ESG Mapper - учебный проект курса «Финансовый и управленческий учёт». Суммы и сценарии условные.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+  <script type="module" src="scanner.js"></script>
+</body>
+</html>
