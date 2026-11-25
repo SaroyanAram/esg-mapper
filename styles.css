@@ -771,10 +771,31 @@ a { color: var(--signal); text-decoration-thickness: 1px; text-underline-offset:
   background-position: center;
   background-size: cover;
 }
+@media (min-width: 768px) {
+  .avatar-hero .hero__backdrop {
+    background-image:
+      linear-gradient(90deg, rgba(11, 31, 42, 0.86) 0%, rgba(11, 31, 42, 0.5) 44%, rgba(11, 31, 42, 0.12) 70%, rgba(11, 31, 42, 0.55) 100%),
+      linear-gradient(180deg, rgba(11, 31, 42, 0.28), rgba(11, 31, 42, 0.92)),
+      url("assets/avatar/hero-backdrop.webp");
+  }
+}
 .avatar-e .source-card--E { background-image: url("assets/avatar/portal-e.webp"); }
 .avatar-s .source-card--S { background-image: url("assets/avatar/portal-s.webp"); }
 .avatar-g .source-card--G { background-image: url("assets/avatar/portal-g.webp"); }
-.avatar-report .map-stage__paper { opacity: 0.5; transform: rotate(5deg); }
+.avatar-e .source-card--E::after,
+.avatar-s .source-card--S::after,
+.avatar-g .source-card--G::after {
+  background: linear-gradient(180deg, rgba(11, 31, 42, 0.24), rgba(11, 31, 42, 0.92) 65%, rgba(11, 31, 42, 0.96));
+}
+.avatar-e .source-card--E p,
+.avatar-s .source-card--S p,
+.avatar-g .source-card--G p { text-shadow: 0 1px 3px rgba(3, 16, 22, 0.9); }
+.avatar-e .source-card--E .source-card__hint { color: #6EE7B7; }
+.avatar-report .map-stage__paper { opacity: 0.34; transform: rotate(5deg); }
+.avatar-report .map-stage__title,
+.avatar-report .map-stage__reports span { text-shadow: 0 1px 4px rgba(3, 16, 22, 0.95); }
+.hero__lede, .hero__stats span, .report-cell b, .hero__scroll,
+.source-card p, .map-stage__reports span, .act__head p { color: #BCCDD2; }
 .avatar-result .quiz-result {
   background-image:
     linear-gradient(180deg, rgba(7, 24, 32, 0.82), rgba(7, 24, 32, 0.94)),
@@ -845,7 +866,7 @@ a { color: var(--signal); text-decoration-thickness: 1px; text-underline-offset:
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .report-cell { flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 10px; }
-  .report-cell b { display: block; font-size: 0.625rem; }
+  .report-cell b { display: block; font-size: 0.6875rem; }
   .hero__scroll { display: none; }
   .source-grid { grid-template-columns: 1fr; }
   .source-card { min-height: 260px; }
