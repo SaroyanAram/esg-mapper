@@ -1,4 +1,4 @@
-/* Каталог: чистый поиск, фильтры и вывод карточек. */
+/* Карта следов: поиск, фильтры, короткий список и выдвижное досье. */
 
 export const CATEGORY_LABELS = {
   E: { letter: "E", word: "Экология" },
@@ -27,12 +27,7 @@ export const FORM_LABELS = {
 };
 
 const FILTER_OPTIONS = {
-  category: [
-    ["all", "Все"],
-    ["E", "E"],
-    ["S", "S"],
-    ["G", "G"],
-  ],
+  category: [["all", "Все"], ["E", "E"], ["S", "S"], ["G", "G"]],
   mechanism: [
     ["all", "Все"],
     ["expense", "Расходы"],
@@ -48,20 +43,11 @@ const FILTER_OPTIONS = {
     ["cashflow", "ОДДС"],
     ["notes", "Примечания"],
   ],
-  link: [
-    ["all", "Все"],
-    ["direct", "Прямая"],
-    ["indirect", "Косвенная"],
-  ],
+  link: [["all", "Все"], ["direct", "Прямая"], ["indirect", "Косвенная"]],
 };
 
-const DEFAULT_FILTERS = {
-  query: "",
-  category: "all",
-  mechanism: "all",
-  form: "all",
-  link: "all",
-};
+const DEFAULT_FILTERS = { query: "", category: "all", mechanism: "all", form: "all", link: "all" };
+const FEATURED_LIMIT = 3;
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -132,165 +118,100 @@ function externalLink(url, label) {
   );
 }
 
-function sourceLink(source, label) {
-  if (!source) return null;
-  return el(
-    "li",
-    {},
-    externalLink(source.url, label || source.label)
-  );
+function dossierBlock(title, ...children) {
+  return el("div", { class: "dossier__block" }, el("h4", { text: title }), ...children);
 }
 
-function tag(text, letter, modifier) {
-  const classes = ["tag"];
-  if (modifier) classes.push(modifier);
-  return el(
-    "li",
-    { class: classes.join(" ") },
-    letter ? el("span", { class: "tag-letter", "aria-hidden": "true", text: letter }) : null,
-    el("span", { text })
-  );
-}
+function buildDossier(item, sourcesById) {
+  const wrap = el("div");
+  const tags = el("div", { class: "dossier__tags" });
+  for (const key of item.categories || []) {
+    const info = CATEGORY_LABELS[key] || { letter: key, word: key };
+    tags.append(el("span", { text: `${info.letter} · ${info.word}` }));
+  }
+  for (const key of item.links || []) tags.append(el("span", { text: LINK_LABELS[key]?.word || key }));
+  for (const key of item.mechanisms || []) tags.append(el("span", { text: MECHANISM_LABELS[key] || key }));
+  wrap.append(tags);
 
-function metaGroup(label, tags) {
-  return [
-    el("span", { class: "meta-label", text: label }),
-    el("ul", { class: "tags" }, ...tags),
-  ];
-}
-
-function block(title, ...children) {
-  return el("div", { class: "block" }, el("h4", { text: title }), ...children);
-}
-
-function buildCard(item, isOpen, sourcesById) {
-  const panelId = `case-${item.id}-panel`;
-  const toggleId = `case-${item.id}-toggle`;
-  const titleId = `case-${item.id}-title`;
-
-  const card = el("article", {
-    class: isOpen ? "case-card is-open" : "case-card",
-    "aria-labelledby": titleId,
-  });
-
-  card.append(
-    el("p", { class: "case-id", text: item.id }),
-    el("h3", { class: "case-title", id: titleId, text: item.title })
-  );
-
-  const meta = el("div", { class: "case-meta" });
-  meta.append(
-    ...metaGroup(
-      "ESG",
-      (item.categories || []).map((key) => {
-        const info = CATEGORY_LABELS[key] || { letter: key, word: "" };
-        return tag(info.word || key, info.letter, `tag--${key.toLowerCase()}`);
-      })
-    ),
-    ...metaGroup(
-      "Связь",
-      (item.links || []).map((key) => {
-        const info = LINK_LABELS[key] || { letter: "", word: key };
-        return tag(info.word, info.letter);
-      })
-    ),
-    ...metaGroup(
-      "Механизм",
-      (item.mechanisms || []).map((key) => tag(MECHANISM_LABELS[key] || key))
-    ),
-    ...metaGroup(
-      "Отчётность",
-      (item.forms || []).map((key) => tag(FORM_LABELS[key] || key))
-    )
-  );
-  card.append(meta);
-
-  const toggle = el(
-    "button",
-    {
-      class: "case-toggle",
-      id: toggleId,
-      type: "button",
-      "aria-expanded": String(isOpen),
-      "aria-controls": panelId,
-      dataset: { caseId: item.id },
-    },
-    el("span", { class: "toggle-label", text: isOpen ? "Свернуть" : "Подробнее" }),
-    el("span", { class: "toggle-glyph", "aria-hidden": "true", text: isOpen ? "−" : "+" })
-  );
-  card.append(toggle);
-
-  const body = el("div", { class: "case-body", id: panelId });
-  if (!isOpen) body.hidden = true;
-
-  const main = el("div", { class: "case-body__main" });
-  main.append(block("Показатель", el("p", { text: item.indicator })));
-
+  const grid = el("div", { class: "dossier__grid" });
+  const main = el("div");
   main.append(
-    block(
+    dossierBlock("Показатель", el("p", { text: item.indicator })),
+    dossierBlock(
       "Цепочка",
-      el("ol", { class: "chain" }, ...(item.chain || []).map((step) => el("li", { text: step })))
-    )
+      el("ol", {}, ...(item.chain || []).map((step) => el("li", { text: step })))
+    ),
+    dossierBlock("Учёт и условия", el("p", { text: item.accounting }))
   );
-
-  main.append(block("Учёт и условия", el("p", { text: item.accounting })));
-
   if (item.id === "03") {
     main.append(
-      block("Денежный поток", el("p", { text: "Признание неденежное: при обесценении угольных активов денежного оттока нет." }))
+      dossierBlock(
+        "Денежный поток",
+        el("p", { text: "Признание неденежное: при обесценении угольных активов денежного оттока нет." })
+      )
     );
   }
+  if (item.example) main.append(dossierBlock("Пример", el("p", { text: item.example })));
 
-  if (item.example) {
-    main.append(block("Пример", el("p", { text: item.example })));
-  }
-
-  const side = el("div", { class: "case-body__side" });
-  const reportsBlock = el("div", { class: "block" }, el("h4", { text: "Отчётность" }));
+  const side = el("div");
+  const reports = dossierBlock("Отчётность");
   for (const key of ["balance", "income", "cashflow", "notes"]) {
     const text = item.reports?.[key];
     if (!text) continue;
     const inFilter = (item.forms || []).includes(key);
-    const report = el("div", { class: inFilter ? "report" : "report report--clarification" });
-    report.append(el("p", { class: "report__name", text: FORM_LABELS[key] || key }));
+    const block = el("div", { class: inFilter ? "dossier__report" : "dossier__report dossier__report--clarify" });
+    block.append(
+      el("b", { text: FORM_LABELS[key] || key }),
+      el("p", { text })
+    );
     if (!inFilter) {
-      report.append(
-        el("span", { class: "report__note", text: `Пояснение вне фильтра «${FORM_LABELS[key] || key}»` })
-      );
+      block.append(el("p", { class: "dossier__clarify", text: `Пояснение вне фильтра «${FORM_LABELS[key] || key}»` }));
     }
-    report.append(el("p", { class: "report__text", text }));
-    reportsBlock.append(report);
+    reports.append(block);
   }
-  side.append(reportsBlock);
+  side.append(reports);
 
-  const refs = el(
-    "div",
-    { class: "block" },
-    el("h4", { text: "Источники" }),
-    el("p", { class: "references", text: item.references })
-  );
-
-  const linkList = el("ul", { class: "source-links" });
-  const accounting = sourceLink(sourcesById["ifrs-accounting"], "Справочник стандартов IFRS");
-  if (accounting) linkList.append(accounting);
-  if (/GRI/.test(item.references || "")) {
-    const gri = sourceLink(sourcesById["gri"], "Стандарты GRI");
-    if (gri) linkList.append(gri);
-  }
-  if (/GHG/.test(item.references || "")) {
-    const ghg = sourceLink(sourcesById["ghg"], "GHG Protocol");
-    if (ghg) linkList.append(ghg);
-  }
-  if (/ICMA/.test(item.references || "")) {
-    const icma = sourceLink(sourcesById["icma"], "Принципы ICMA");
-    if (icma) linkList.append(icma);
-  }
-  refs.append(linkList);
+  const refs = dossierBlock("Источники", el("p", { class: "dossier__refs", text: item.references }));
+  const links = el("div", { class: "dossier__links" });
+  if (sourcesById["ifrs-accounting"]) links.append(externalLink(sourcesById["ifrs-accounting"].url, "IFRS"));
+  if (/GRI/.test(item.references || "") && sourcesById["gri"]) links.append(externalLink(sourcesById["gri"].url, "GRI"));
+  if (/GHG/.test(item.references || "") && sourcesById["ghg"]) links.append(externalLink(sourcesById["ghg"].url, "GHG Protocol"));
+  if (/ICMA/.test(item.references || "") && sourcesById["icma"]) links.append(externalLink(sourcesById["icma"].url, "ICMA"));
+  refs.append(links);
   side.append(refs);
 
-  body.append(main, side);
-  card.append(body);
-  return card;
+  grid.append(main, side);
+  wrap.append(grid);
+  return wrap;
+}
+
+function buildRow(item) {
+  const row = el("button", {
+    class: "case-row",
+    type: "button",
+    dataset: { openCase: item.id },
+    "aria-label": `Открыть досье: ${item.title}`,
+  });
+  const esg = el("span", { class: "case-row__esg", "aria-hidden": "true" });
+  for (const key of item.categories || []) esg.append(el("i", { dataset: { esg: key }, text: key }));
+  const forms = el("span", { class: "case-row__forms", "aria-hidden": "true" });
+  for (const key of item.forms || []) forms.append(el("span", { text: FORM_LABELS[key] || key }));
+  row.append(
+    el("span", { class: "case-row__id", "aria-hidden": "true", text: item.id }),
+    el("span", {}, el("span", { class: "case-row__title", text: item.title }), forms),
+    esg,
+    el("span", { class: "case-row__arrow", "aria-hidden": "true", text: "›" })
+  );
+  return row;
+}
+
+function emptyState() {
+  return el(
+    "div",
+    { class: "catalog-empty" },
+    el("p", { text: "Ничего не найдено. Измените фильтры или сбросьте их." }),
+    el("button", { class: "btn btn--ghost", type: "button", dataset: { action: "reset" }, text: "Сбросить фильтры" })
+  );
 }
 
 export function createCatalog(data) {
@@ -299,24 +220,35 @@ export function createCatalog(data) {
     reset: document.getElementById("catalog-reset"),
     results: document.getElementById("catalog-results"),
     count: document.getElementById("catalog-count"),
-    filterPanel: document.getElementById("filters-panel"),
-    filtersToggle: document.getElementById("filters-toggle"),
-    filtersBadge: document.getElementById("filters-badge"),
+    title: document.getElementById("catalog-title"),
+    panel: document.getElementById("filters-panel"),
+    toggle: document.getElementById("filters-toggle"),
+    badge: document.getElementById("filters-badge"),
     error: document.getElementById("catalog-error"),
-    retry: document.getElementById("catalog-retry"),
-    catalogTitle: document.getElementById("catalog-title"),
+    showAll: document.getElementById("show-all"),
+    hiddenCount: document.getElementById("hidden-count"),
+    dossier: document.getElementById("case-dossier"),
+    dossierId: document.getElementById("dossier-id"),
+    dossierTitle: document.getElementById("dossier-title"),
+    dossierBody: document.getElementById("dossier-body"),
+    dossierClose: document.getElementById("dossier-close"),
+    stageTitle: document.getElementById("stage-title"),
+    lupa: document.getElementById("lupa"),
+    mapLupa: document.querySelector(".map-stage__lupa"),
   };
 
   const sourcesById = {};
   for (const source of data.sources || []) sourcesById[source.id] = source;
 
   const state = { ...DEFAULT_FILTERS };
-  const openIds = new Set();
+  let selectedId = null;
+  let expanded = false;
+  let lastTrigger = null;
 
   function renderFilterGroup(group, options) {
-    const container = els.filterPanel.querySelector(`[data-filter="${group}"]`);
+    const container = els.panel.querySelector(`[data-filter="${group}"]`);
     if (!container) return;
-    container.replaceChildren();
+    const chips = el("div", { class: "filter-chips" });
     for (const [value, label] of options) {
       const inputId = `filter-${group}-${value}`;
       const input = el("input", {
@@ -324,32 +256,22 @@ export function createCatalog(data) {
         name: group,
         value,
         id: inputId,
-        checked: value === state[group],
+        checked: state[group] === value,
       });
-      const text = el("span", { text: label });
-      const labelNode = el(
-        "label",
-        { for: inputId },
-        el("span", { class: "chip-check", "aria-hidden": "true", text: "✓" }),
-        text
-      );
-      if (group === "category" && value !== "all") {
-        const word = CATEGORY_LABELS[value]?.word;
-        if (word) labelNode.append(el("span", { class: "visually-hidden", text: `, ${word}` }));
-      }
-      container.append(el("div", { class: "chip" }, input, labelNode));
+      const letter = group === "category" && value !== "all" ? el("span", { class: "chip__letter", text: value }) : null;
+      const labelNode = el("label", { for: inputId }, letter, el("span", { text: label }));
+      chips.append(el("div", { class: `chip chip--${group === "category" ? value : ""}` }, input, labelNode));
     }
+    container.replaceChildren(el("p", { text: container.querySelector("p")?.textContent || "" }), chips);
   }
 
   function renderFilters() {
-    for (const [group, options] of Object.entries(FILTER_OPTIONS)) {
-      renderFilterGroup(group, options);
-    }
+    for (const [group, options] of Object.entries(FILTER_OPTIONS)) renderFilterGroup(group, options);
   }
 
   function syncControls() {
     els.search.value = state.query;
-    for (const input of els.filterPanel.querySelectorAll('input[type="radio"]')) {
+    for (const input of els.panel.querySelectorAll('input[type="radio"]')) {
       input.checked = state[input.name] === input.value;
     }
     updateBadge();
@@ -361,106 +283,117 @@ export function createCatalog(data) {
 
   function updateBadge() {
     const count = activeGroupCount();
-    if (!els.filtersBadge) return;
-    els.filtersBadge.textContent = String(count);
-    els.filtersBadge.hidden = count === 0;
-    if (els.filtersToggle) {
-      els.filtersToggle.setAttribute("aria-label", `Фильтры, активно групп: ${count}`);
+    els.badge.textContent = String(count);
+    els.badge.hidden = count === 0;
+    els.toggle.setAttribute("aria-label", `Настроить линзу, активно групп: ${count}`);
+  }
+
+  function isDefaultView() {
+    return !state.query && activeGroupCount() === 0;
+  }
+
+  function setStage(item) {
+    const mood = item?.categories?.[0] || "idle";
+    const offsets = { E: ["-7px", "3px"], S: ["0px", "-5px"], G: ["7px", "4px"] };
+    const [x, y] = offsets[mood] || ["0px", "0px"];
+    for (const node of [els.lupa, els.mapLupa]) {
+      if (!node) continue;
+      node.dataset.mood = mood;
+      node.style.setProperty("--pupil-x", x);
+      node.style.setProperty("--pupil-y", y);
+      node.style.setProperty("--map-x", x);
+      node.style.setProperty("--map-y", y);
+    }
+    els.stageTitle.textContent = item ? item.title : "Выберите след";
+    for (const chip of document.querySelectorAll("[data-stage-report]")) {
+      chip.classList.toggle("is-lit", Boolean(item && (item.forms || []).includes(chip.dataset.stageReport)));
     }
   }
 
-  function emptyState() {
-    return el(
-      "div",
-      { class: "catalog-empty" },
-      el("p", { text: "Ничего не найдено. Измените фильтры или сбросьте их." }),
-      el("button", { class: "btn btn-secondary", type: "button", dataset: { action: "reset" }, text: "Сбросить фильтры" })
-    );
+  function openDossier(item) {
+    selectedId = item.id;
+    els.dossierId.textContent = item.id;
+    els.dossierTitle.textContent = item.title;
+    els.dossierBody.replaceChildren(buildDossier(item, sourcesById));
+    setStage(item);
+    if (!els.dossier.open) els.dossier.showModal();
+    els.dossierTitle.focus({ preventScroll: true });
+  }
+
+  function closeDossier({ restoreFocus = false } = {}) {
+    const wasOpen = els.dossier.open;
+    if (wasOpen) els.dossier.close();
+    selectedId = null;
+    if (!wasOpen && restoreFocus && lastTrigger?.isConnected) {
+      const trigger = lastTrigger;
+      lastTrigger = null;
+      requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
+    }
   }
 
   function render() {
-    const focusedToggle = document.activeElement?.closest?.(".case-toggle");
-    const focusedId = focusedToggle?.dataset.caseId || null;
-
     const visible = filterCases(data.cases, state);
-    const visibleIds = new Set(visible.map((item) => item.id));
-    for (const id of [...openIds]) {
-      if (!visibleIds.has(id)) openIds.delete(id);
-    }
-
-    const cards = visible.map((item) => buildCard(item, openIds.has(item.id), sourcesById));
-    els.results.replaceChildren(...(cards.length ? cards : [emptyState()]));
+    const limited = isDefaultView() && !expanded;
+    const rows = limited ? visible.slice(0, FEATURED_LIMIT) : visible;
+    els.results.replaceChildren(...(rows.length ? rows.map(buildRow) : [emptyState()]));
     els.count.textContent = `Найдено: ${visible.length} из ${data.cases.length}`;
-
-    if (focusedId) {
-      const next = document.getElementById(`case-${focusedId}-toggle`);
-      if (next) next.focus({ preventScroll: true });
-    }
+    els.hiddenCount.textContent = String(Math.max(0, visible.length - rows.length));
+    els.showAll.hidden = !limited || visible.length <= FEATURED_LIMIT;
+    if (selectedId && !visible.some((item) => item.id === selectedId)) closeDossier();
+    if (!selectedId && !limited) setStage(null);
   }
 
-  function setFilter(group, value) {
-    state[group] = value;
-    render();
-    updateBadge();
+  function focusMap() {
+    els.title.focus({ preventScroll: true });
+    els.title.scrollIntoView({ block: "start" });
   }
 
   function resetAll({ focusSearch = false } = {}) {
     Object.assign(state, DEFAULT_FILTERS);
-    openIds.clear();
+    expanded = false;
+    closeDossier();
+    setStage(null);
     syncControls();
     render();
     if (focusSearch) els.search.focus();
   }
 
-  function focusCatalogHeading() {
-    if (!els.catalogTitle) return;
-    els.catalogTitle.focus({ preventScroll: true });
-    els.catalogTitle.scrollIntoView({ block: "start" });
-  }
-
   function selectMechanism(mechanism) {
     Object.assign(state, DEFAULT_FILTERS, { mechanism });
-    openIds.clear();
+    expanded = false;
+    closeDossier();
+    setStage(null);
     syncControls();
     render();
-    els.filterPanel.classList.remove("is-open");
-    if (els.filtersToggle) els.filtersToggle.setAttribute("aria-expanded", "false");
-    focusCatalogHeading();
+    closePanel();
+    focusMap();
   }
 
-  function openCase(id) {
+  function selectCategory(category) {
+    Object.assign(state, DEFAULT_FILTERS, { category });
+    expanded = false;
+    closeDossier();
+    setStage(null);
+    syncControls();
+    render();
+    focusMap();
+  }
+
+  function openCase(id, trigger = null) {
     const item = data.cases.find((entry) => entry.id === id);
     if (!item) return;
     Object.assign(state, DEFAULT_FILTERS);
-    openIds.clear();
-    openIds.add(id);
+    expanded = false;
     syncControls();
     render();
-    const toggle = document.getElementById(`case-${id}-toggle`);
-    const card = toggle?.closest(".case-card");
-    if (card) card.scrollIntoView({ block: "start" });
-    if (toggle) toggle.focus({ preventScroll: true });
+    lastTrigger = document.querySelector(`[data-open-case="${id}"]`) || trigger;
+    openDossier(item);
+    els.title.scrollIntoView({ block: "start" });
   }
 
-  function toggleCase(id) {
-    const item = data.cases.find((entry) => entry.id === id);
-    if (!item) return;
-    const open = !openIds.has(id);
-    if (open) openIds.add(id);
-    else openIds.delete(id);
-
-    const toggle = document.getElementById(`case-${id}-toggle`);
-    const card = toggle?.closest(".case-card");
-    const body = document.getElementById(`case-${id}-panel`);
-    if (!toggle || !card || !body) return;
-
-    toggle.setAttribute("aria-expanded", String(open));
-    const label = toggle.querySelector(".toggle-label");
-    const glyph = toggle.querySelector(".toggle-glyph");
-    if (label) label.textContent = open ? "Свернуть" : "Подробнее";
-    if (glyph) glyph.textContent = open ? "−" : "+";
-    body.hidden = !open;
-    card.classList.toggle("is-open", open);
+  function closePanel() {
+    els.panel.classList.remove("is-open");
+    els.toggle.setAttribute("aria-expanded", "false");
   }
 
   els.search.addEventListener("input", () => {
@@ -468,12 +401,18 @@ export function createCatalog(data) {
     render();
   });
 
-  els.reset.addEventListener("click", () => resetAll({ focusSearch: false }));
+  els.reset.addEventListener("click", () => resetAll());
+  els.showAll.addEventListener("click", () => {
+    expanded = true;
+    render();
+  });
 
-  els.filterPanel.addEventListener("change", (event) => {
+  els.panel.addEventListener("change", (event) => {
     const input = event.target.closest('input[type="radio"]');
     if (!input) return;
-    setFilter(input.name, input.value);
+    state[input.name] = input.value;
+    render();
+    updateBadge();
   });
 
   els.results.addEventListener("click", (event) => {
@@ -482,23 +421,37 @@ export function createCatalog(data) {
       resetAll({ focusSearch: true });
       return;
     }
-    const toggle = event.target.closest(".case-toggle");
-    if (toggle) toggleCase(toggle.dataset.caseId);
+    const row = event.target.closest("[data-open-case]");
+    if (row) {
+      event.stopPropagation();
+      openCase(row.dataset.openCase, row);
+    }
   });
 
-  if (els.filtersToggle) {
-    els.filtersToggle.addEventListener("click", () => {
-      const open = !els.filterPanel.classList.contains("is-open");
-      els.filterPanel.classList.toggle("is-open", open);
-      els.filtersToggle.setAttribute("aria-expanded", String(open));
+  els.toggle.addEventListener("click", () => {
+    const open = !els.panel.classList.contains("is-open");
+    els.panel.classList.toggle("is-open", open);
+    els.toggle.setAttribute("aria-expanded", String(open));
+  });
+
+  els.dossierClose.addEventListener("click", () => closeDossier({ restoreFocus: true }));
+  els.dossier.addEventListener("close", () => {
+    selectedId = null;
+    const trigger = lastTrigger;
+    lastTrigger = null;
+    requestAnimationFrame(() => {
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
     });
-  }
+  });
+  els.dossier.addEventListener("click", (event) => {
+    if (event.target === els.dossier) closeDossier({ restoreFocus: true });
+  });
 
   if (els.error) els.error.hidden = true;
-
   renderFilters();
   syncControls();
   render();
+  setStage(null);
 
-  return { resetAll, selectMechanism, openCase, state };
+  return { resetAll, selectMechanism, selectCategory, openCase, state };
 }
