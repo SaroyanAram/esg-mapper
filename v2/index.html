@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESG Mapper — след сигнала</title>
+  <meta name="description" content="Интерактивная карта: как ESG-событие доходит до баланса, отчёта о финансовых результатах и денежных потоков.">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="ESG Mapper — след сигнала">
+  <meta property="og:description" content="Одно ESG-событие меняет три отчёта. Пройдите по следу с Люпой-линзой.">
+  <meta property="og:image" content="assets/og-esg-mapper.jpg">
+  <meta property="og:url" content="https://SaroyanAram.github.io/esg-mapper/v2/">
+  <link rel="canonical" href="https://SaroyanAram.github.io/esg-mapper/v2/">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+
+  <header class="topbar">
+    <div class="shell topbar__inner">
+      <a class="brand" href="#signal" aria-label="ESG Mapper — к началу">
+        <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="20" cy="20" r="6" fill="#F6C453"/>
+          <path d="M20 1v7M20 32v7M1 20h7M32 20h7" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>ESG Mapper</span>
+      </a>
+
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Маршрут по истории">
+        <ul>
+          <li><a href="#signal">Сигнал</a></li>
+          <li><a href="#source">Источник</a></li>
+          <li><a href="#mechanisms">Мосты</a></li>
+          <li><a href="#catalog">Карта</a></li>
+          <li><a href="#quiz">Проверка</a></li>
+          <li><a href="#methodology">Источники</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Акт 1 -->
+    <section class="act hero" id="signal" aria-labelledby="hero-title">
+      <div class="hero__backdrop" aria-hidden="true"></div>
+      <div class="shell hero__inner">
+        <div class="hero__copy">
+          <p class="hero__eyebrow">Интерактивная карта</p>
+          <h1 id="hero-title">Одно ESG-событие меняет три отчёта.</h1>
+          <p class="hero__lede" id="hero-lede">12 кейсов показывают путь от экологического, социального или управленческого сигнала до баланса, ОФР и ОДДС.</p>
+          <a class="btn btn--signal" href="#source">Пойти по следу</a>
+          <ul class="hero__stats" id="hero-stats" aria-label="Объём материала">
+            <li><b>12</b><span>кейсов</span></li>
+            <li><b>4</b><span>моста</span></li>
+            <li><b>5</b><span>проверок</span></li>
+          </ul>
+        </div>
+
+        <div class="hero__stage" aria-hidden="true">
+          <svg class="signal-path" viewBox="0 0 620 460" focusable="false">
+            <path class="signal-path__track" d="M40 230C150 230 170 120 285 120S420 210 560 210"/>
+            <path class="signal-path__track signal-path__track--low" d="M285 120C310 250 340 330 560 330"/>
+            <path class="signal-path__track signal-path__track--mid" d="M285 120C350 170 420 260 560 260"/>
+            <circle class="signal-path__dot" r="8">
+              <animateMotion dur="4.2s" repeatCount="indefinite" path="M40 230C150 230 170 120 285 120S420 210 560 210"/>
+            </circle>
+          </svg>
+
+          <div class="lupa" id="lupa" data-mood="idle">
+            <svg viewBox="0 0 320 320" focusable="false">
+              <circle class="lupa__halo" cx="160" cy="160" r="126"/>
+              <circle class="lupa__frame" cx="160" cy="160" r="104"/>
+              <circle class="lupa__glass" cx="160" cy="160" r="88"/>
+              <circle class="lupa__pupil" id="lupa-pupil" cx="160" cy="160" r="30"/>
+              <circle class="lupa__glint" cx="145" cy="145" r="9"/>
+              <g class="lupa__scarves">
+                <path d="M96 226L58 282" stroke="#34D399"/>
+                <path d="M160 250V302" stroke="#60A5FA"/>
+                <path d="M224 226L262 282" stroke="#A78BFA"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="report-stack">
+            <div class="report-cell" data-report="balance"><span>Баланс</span><b>актив · обязательство</b></div>
+            <div class="report-cell" data-report="income"><span>ОФР</span><b>расход · убыток</b></div>
+            <div class="report-cell" data-report="cashflow"><span>ОДДС</span><b>отток · нет оттока</b></div>
+          </div>
+        </div>
+      </div>
+      <p class="hero__scroll" aria-hidden="true">Листайте, чтобы проследить путь ↓</p>
+    </section>
+
+    <!-- Акт 2 -->
+    <section class="act act--source" id="source" aria-labelledby="source-title">
+      <div class="shell">
+        <div class="act__head">
+          <h2 id="source-title">Сначала приходит сигнал</h2>
+          <p>Сигнал ещё не статья. Нужен мост.</p>
+        </div>
+        <div class="source-grid" id="source-grid"></div>
+      </div>
+    </section>
+
+    <!-- Акт 3 -->
+    <section class="act act--bridges" id="mechanisms" aria-labelledby="bridges-title">
+      <div class="shell">
+        <div class="act__head act__head--split">
+          <div>
+            <h2 id="bridges-title">Четыре моста в отчётность</h2>
+            <p>Люпа наводит линзу — событие превращается в строку учёта.</p>
+          </div>
+          <p class="bridge-note" id="bridge-note"></p>
+        </div>
+        <div class="bridge-grid" id="bridges-list"></div>
+      </div>
+    </section>
+
+    <!-- Акт 4 -->
+    <section class="act act--catalog" id="catalog" aria-labelledby="catalog-title">
+      <div class="shell">
+        <div class="act__head act__head--split">
+          <div>
+            <h2 id="catalog-title" tabindex="-1">Карта следов</h2>
+            <p id="catalog-count" aria-live="polite">Загрузка каталога…</p>
+          </div>
+          <button class="btn btn--ghost" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
+            Настроить линзу <span class="badge" id="filters-badge" hidden>0</span>
+          </button>
+        </div>
+
+        <div id="catalog-error" class="error-box" hidden role="alert">
+          <p>Не удалось загрузить каталог. Обновите страницу</p>
+          <button class="btn btn--signal" id="catalog-retry" type="button">Повторить</button>
+        </div>
+
+        <div class="map-layout">
+          <aside class="map-stage" aria-label="Сцена с линзой">
+            <div class="map-stage__glow" aria-hidden="true"></div>
+            <img class="map-stage__paper" src="assets/report-sheet.svg" alt="" width="640" height="720">
+            <div class="map-stage__lupa" aria-hidden="true">
+              <svg viewBox="0 0 320 320" focusable="false">
+                <circle class="lupa__frame" cx="160" cy="160" r="104"/>
+                <circle class="lupa__glass" cx="160" cy="160" r="88"/>
+                <circle class="lupa__pupil" id="map-pupil" cx="160" cy="160" r="30"/>
+                <circle class="lupa__glint" cx="145" cy="145" r="9"/>
+              </svg>
+            </div>
+            <p class="map-stage__title" id="stage-title">Выберите след</p>
+            <div class="map-stage__reports" aria-hidden="true">
+              <span data-stage-report="balance">Баланс</span>
+              <span data-stage-report="income">ОФР</span>
+              <span data-stage-report="cashflow">ОДДС</span>
+              <span data-stage-report="notes">Примечания</span>
+            </div>
+          </aside>
+
+          <div class="map-list">
+            <div class="map-tools">
+              <label class="search">
+                <span class="visually-hidden">Найти след</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2"/></svg>
+                <input id="catalog-search" type="search" placeholder="Найти след" autocomplete="off">
+              </label>
+              <button class="btn btn--ghost btn--small" id="catalog-reset" type="button">Сбросить</button>
+            </div>
+
+            <div class="filters-panel" id="filters-panel">
+              <div class="filter-group" data-filter="category"><p>ESG</p></div>
+              <div class="filter-group" data-filter="mechanism"><p>Механизм</p></div>
+              <div class="filter-group" data-filter="form"><p>Отчётность</p></div>
+              <div class="filter-group" data-filter="link"><p>Связь</p></div>
+            </div>
+
+            <div class="case-list" id="catalog-results"></div>
+            <button class="show-all" id="show-all" type="button" hidden>Открыть архив: ещё <span id="hidden-count">0</span></button>
+          </div>
+        </div>
+      </div>
+
+      <dialog class="dossier" id="case-dossier" aria-labelledby="dossier-title">
+        <div class="dossier__bar">
+          <span class="dossier__id" id="dossier-id">00</span>
+          <button class="dossier__close" id="dossier-close" type="button" aria-label="Закрыть досье">×</button>
+        </div>
+        <h3 id="dossier-title" tabindex="-1"></h3>
+        <div class="dossier__body" id="dossier-body"></div>
+      </dialog>
+    </section>
+
+    <!-- Акт 5 -->
+    <section class="act act--quiz" id="quiz" aria-labelledby="quiz-title">
+      <div class="shell quiz-layout">
+        <div class="quiz-intro">
+          <h2 id="quiz-title">Контрольная точка</h2>
+          <p>Пять сигналов. Наведите линзу на верную строку.</p>
+          <svg class="quiz-intro__mark" viewBox="0 0 320 320" aria-hidden="true" focusable="false">
+            <circle cx="160" cy="160" r="96" fill="none" stroke="#F6C453" stroke-width="2" opacity="0.5"/>
+            <circle cx="160" cy="160" r="48" fill="#F6C453" opacity="0.22"/>
+            <circle cx="160" cy="160" r="14" fill="#F6C453"/>
+          </svg>
+        </div>
+        <div class="quiz-card-wrap" id="quiz-root"></div>
+      </div>
+    </section>
+
+    <section class="act act--trust" id="methodology" aria-labelledby="methodology-title">
+      <div class="shell">
+        <div class="act__head act__head--split">
+          <div>
+            <h2 id="methodology-title">Печать достоверности</h2>
+            <p>Учебная карта. Стандарты — по первоисточникам.</p>
+          </div>
+          <span class="seal" aria-hidden="true">IFRS · GRI · GHG · ICMA</span>
+        </div>
+        <details class="disclosure">
+          <summary>Как устроена карта и где границы примера</summary>
+          <div id="methodology-body"></div>
+          <dl class="glossary" id="glossary"></dl>
+        </details>
+        <ul class="source-stamps" id="sources-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer__inner">
+      <p>ESG Mapper — учебный проект о связи устойчивости и финансовой отчётности.</p>
+      <a href="#signal">Вернуться к сигналу ↑</a>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
