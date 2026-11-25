@@ -5,6 +5,6 @@
   "s": true,
   "g": true,
   "report": true,
-  "result": false,
-  "outro": false
+  "result": true,
+  "outro": true
 }

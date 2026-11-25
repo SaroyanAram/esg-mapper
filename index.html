@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ESG Mapper — след сигнала</title>
+  <title>ESG Mapper — живой атлас signal-to-report</title>
   <meta name="description" content="Интерактивная карта: как ESG-событие доходит до баланса, отчёта о финансовых результатах и денежных потоков.">
-  <meta name="color-scheme" content="dark">
-  <meta property="og:title" content="ESG Mapper — след сигнала">
+  <meta name="color-scheme" content="light">
+  <meta property="og:title" content="ESG Mapper — живой атлас">
   <meta property="og:description" content="Одно ESG-событие меняет три отчёта. Пройдите по следу с Люпой-линзой.">
   <meta property="og:image" content="assets/og-esg-mapper.jpg">
   <meta property="og:url" content="https://SaroyanAram.github.io/esg-mapper/">
@@ -22,7 +22,7 @@
       <a class="brand" href="#signal" aria-label="ESG Mapper — к началу">
         <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
           <circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="2"/>
-          <circle cx="20" cy="20" r="6" fill="#F6C453"/>
+          <circle cx="20" cy="20" r="6" fill="var(--sun)"/>
           <path d="M20 1v7M20 32v7M1 20h7M32 20h7" stroke="currentColor" stroke-width="2"/>
         </svg>
         <span>ESG Mapper</span>
@@ -30,7 +30,7 @@
 
       <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 
-      <nav class="site-nav" id="site-nav" aria-label="Маршрут по истории">
+      <nav class="site-nav" id="site-nav" aria-label="Маршрут по атласу">
         <ul>
           <li><a href="#signal">Сигнал</a></li>
           <li><a href="#source">Источник</a></li>
@@ -44,12 +44,12 @@
   </header>
 
   <main id="main">
-    <!-- Акт 1 -->
+    <!-- Акт 1. Светлый стол, Люпа и путь сигнала -->
     <section class="act hero" id="signal" aria-labelledby="hero-title">
       <div class="hero__backdrop" aria-hidden="true"></div>
       <div class="shell hero__inner">
         <div class="hero__copy">
-          <p class="hero__eyebrow">Интерактивная карта</p>
+          <p class="hero__eyebrow">Живой атлас · интерактивная карта</p>
           <h1 id="hero-title">Одно ESG-событие меняет три отчёта.</h1>
           <p class="hero__lede" id="hero-lede">12 кейсов показывают путь от экологического, социального или управленческого сигнала до баланса, ОФР и ОДДС.</p>
           <a class="btn btn--signal" href="#source">Пойти по следу</a>
@@ -78,9 +78,9 @@
               <circle class="lupa__pupil" id="lupa-pupil" cx="160" cy="160" r="30"/>
               <circle class="lupa__glint" cx="145" cy="145" r="9"/>
               <g class="lupa__scarves">
-                <path d="M96 226L58 282" stroke="#34D399"/>
-                <path d="M160 250V302" stroke="#60A5FA"/>
-                <path d="M224 226L262 282" stroke="#A78BFA"/>
+                <path d="M96 226L58 282" stroke="var(--e)"/>
+                <path d="M160 250V302" stroke="var(--s)"/>
+                <path d="M224 226L262 282" stroke="var(--g)"/>
               </g>
             </svg>
           </div>
@@ -95,7 +95,7 @@
       <p class="hero__scroll" aria-hidden="true">Листайте, чтобы проследить путь ↓</p>
     </section>
 
-    <!-- Акт 2 -->
+    <!-- Акт 2. Три источника сигнала -->
     <section class="act act--source" id="source" aria-labelledby="source-title">
       <div class="shell">
         <div class="act__head">
@@ -106,7 +106,7 @@
       </div>
     </section>
 
-    <!-- Акт 3 -->
+    <!-- Акт 3. Механизмы-мостики -->
     <section class="act act--bridges" id="mechanisms" aria-labelledby="bridges-title">
       <div class="shell">
         <div class="act__head act__head--split">
@@ -120,7 +120,7 @@
       </div>
     </section>
 
-    <!-- Акт 4 -->
+    <!-- Акт 4. Карта следов -->
     <section class="act act--catalog" id="catalog" aria-labelledby="catalog-title">
       <div class="shell">
         <div class="act__head act__head--split">
@@ -192,22 +192,23 @@
       </dialog>
     </section>
 
-    <!-- Акт 5 -->
+    <!-- Акт 5. Проверка -->
     <section class="act act--quiz" id="quiz" aria-labelledby="quiz-title">
       <div class="shell quiz-layout">
         <div class="quiz-intro">
           <h2 id="quiz-title">Контрольная точка</h2>
           <p>Пять сигналов. Наведите линзу на верную строку.</p>
           <svg class="quiz-intro__mark" viewBox="0 0 320 320" aria-hidden="true" focusable="false">
-            <circle cx="160" cy="160" r="96" fill="none" stroke="#F6C453" stroke-width="2" opacity="0.5"/>
-            <circle cx="160" cy="160" r="48" fill="#F6C453" opacity="0.22"/>
-            <circle cx="160" cy="160" r="14" fill="#F6C453"/>
+            <circle cx="160" cy="160" r="96" fill="none" stroke="var(--sun)" stroke-width="2" opacity="0.5"/>
+            <circle cx="160" cy="160" r="48" fill="var(--sun)" opacity="0.18"/>
+            <circle cx="160" cy="160" r="14" fill="var(--sun-ink)"/>
           </svg>
         </div>
         <div class="quiz-card-wrap" id="quiz-root"></div>
       </div>
     </section>
 
+    <!-- Достоверность -->
     <section class="act act--trust" id="methodology" aria-labelledby="methodology-title">
       <div class="shell">
         <div class="act__head act__head--split">

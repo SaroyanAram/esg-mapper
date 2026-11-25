@@ -1,4 +1,4 @@
-/* v2: история «След сигнала». Данные остаются в content/site-content.json. */
+/* v3: «Живой атлас». Данные остаются в content/site-content.json. */
 
 import { createCatalog } from "./catalog.js";
 import { createQuiz } from "./quiz.js";
