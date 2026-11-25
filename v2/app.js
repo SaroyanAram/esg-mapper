@@ -3,6 +3,7 @@
 import { createCatalog } from "./catalog.js";
 import { createQuiz } from "./quiz.js";
 import { initStory } from "./story.js";
+import { initAvatar } from "./avatar.js";
 
 const DATA_URL = "data/site-content.json";
 
@@ -238,6 +239,7 @@ function init(data) {
   if (!quiz) quiz = createQuiz(data);
   renderBridges(data);
   initStory();
+  initAvatar();
   alignToHash();
 }
 

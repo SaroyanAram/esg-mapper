@@ -321,10 +321,14 @@ export function createCatalog(data) {
   }
 
   function closeDossier({ restoreFocus = false } = {}) {
-    if (els.dossier.open) els.dossier.close();
+    const wasOpen = els.dossier.open;
+    if (wasOpen) els.dossier.close();
     selectedId = null;
-    if (restoreFocus && lastTrigger?.isConnected) lastTrigger.focus({ preventScroll: true });
-    lastTrigger = null;
+    if (!wasOpen && restoreFocus && lastTrigger?.isConnected) {
+      const trigger = lastTrigger;
+      lastTrigger = null;
+      requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
+    }
   }
 
   function render() {
@@ -382,7 +386,7 @@ export function createCatalog(data) {
     expanded = false;
     syncControls();
     render();
-    lastTrigger = trigger || document.querySelector(`[data-open-case="${id}"]`);
+    lastTrigger = document.querySelector(`[data-open-case="${id}"]`) || trigger;
     openDossier(item);
     els.title.scrollIntoView({ block: "start" });
   }
@@ -418,7 +422,10 @@ export function createCatalog(data) {
       return;
     }
     const row = event.target.closest("[data-open-case]");
-    if (row) openCase(row.dataset.openCase, row);
+    if (row) {
+      event.stopPropagation();
+      openCase(row.dataset.openCase, row);
+    }
   });
 
   els.toggle.addEventListener("click", () => {
@@ -430,6 +437,11 @@ export function createCatalog(data) {
   els.dossierClose.addEventListener("click", () => closeDossier({ restoreFocus: true }));
   els.dossier.addEventListener("close", () => {
     selectedId = null;
+    const trigger = lastTrigger;
+    lastTrigger = null;
+    requestAnimationFrame(() => {
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    });
   });
   els.dossier.addEventListener("click", (event) => {
     if (event.target === els.dossier) closeDossier({ restoreFocus: true });
