@@ -36,7 +36,24 @@ export function createQuiz(data) {
     phase: "select",
   };
 
+  const beats = document.querySelector(".quiz-beats");
+  const mascot = document.querySelector(".quiz-mascot");
+
   const caseTitle = (id) => data.cases.find((item) => item.id === id)?.title || `Кейс ${id}`;
+
+  function updateScene() {
+    if (beats) {
+      [...beats.children].forEach((beat, index) => {
+        beat.classList.toggle("is-active", state.phase === "feedback" && index === state.index);
+        beat.classList.toggle("is-done", state.phase === "result" || index < state.index);
+      });
+    }
+    if (mascot) {
+      const answer = state.answers[state.index];
+      mascot.classList.toggle("is-correct", state.phase === "feedback" && Boolean(answer?.isCorrect));
+      mascot.classList.toggle("is-wrong", state.phase === "feedback" && Boolean(answer) && !answer.isCorrect);
+    }
+  }
 
   function caseLink(question) {
     if (!question.relatedCaseId) return null;
@@ -267,6 +284,7 @@ export function createQuiz(data) {
   }
 
   function render(focus = "none") {
+    updateScene();
     let view;
     if (state.phase === "result") {
       view = resultView();

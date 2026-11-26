@@ -27,9 +27,9 @@ const dom = {
 };
 
 const SOURCE_CARDS = [
-  { key: "E", word: "Экология", caption: "Выбросы, платежи, активы" },
-  { key: "S", word: "Социальное", caption: "Обучение, травмы, персонал" },
-  { key: "G", word: "Управление", caption: "Правление, вознаграждение, раскрытие" },
+  { key: "E", word: "Экология", caption: "Выбросы, платежи, активы", visual: "На кадре: фильтр и выбросы" },
+  { key: "S", word: "Социальное", caption: "Обучение, травмы, персонал", visual: "На кадре: обучение команды" },
+  { key: "G", word: "Управление", caption: "Правление, вознаграждение, раскрытие", visual: "На кадре: стол правления" },
 ];
 
 const BRIDGE_SHORT = {
@@ -37,6 +37,20 @@ const BRIDGE_SHORT = {
   capitalization: "Есть критерии признания — актив и амортизация.",
   provision: "Обязанность, вероятный отток, надёжная оценка.",
   impairment: "Балансовая выше возмещаемой — убыток.",
+};
+
+const BRIDGE_TAG = {
+  expense: "затраты → расход",
+  capitalization: "затраты → актив",
+  provision: "обязанность → обязательство",
+  impairment: "20 − 12 = убыток",
+};
+
+const BRIDGE_STANDARD = {
+  expense: "IAS 38.69(b)",
+  capitalization: "IAS 16",
+  provision: "IAS 37",
+  impairment: "IAS 36",
 };
 
 const SOURCE_SHORT = {
@@ -112,6 +126,7 @@ function renderSourceCards() {
       el("span", { class: "source-card__letter", "aria-hidden": "true", text: card.key }),
       el("h3", { text: card.word }),
       el("p", { text: card.caption }),
+      el("span", { class: "source-card__visual", text: card.visual }),
       el("span", {
         class: "source-card__wave",
         "aria-hidden": "true",
@@ -138,9 +153,16 @@ function renderBridges(data) {
       });
 
       const more = el("details", { class: "bridge__more" });
-      more.append(el("summary", { text: "Формулировка механизма" }), el("p", { text: bridge.body }));
+      more.append(
+        el("summary", {},
+          el("span", { class: "bridge__more-label", text: "Правило учёта" }),
+          el("span", { class: "bridge__more-standard", text: BRIDGE_STANDARD[bridge.id] || "" }),
+          el("span", { class: "bridge__more-arrow", "aria-hidden": "true" })
+        ),
+        el("div", { class: "bridge__more-body" }, el("p", { text: bridge.body }))
+      );
 
-      const tile = el("article", { class: "bridge" });
+      const tile = el("article", { class: `bridge bridge--${bridge.id}` });
       const media = el("div", { class: "bridge__media" });
       media.append(
         el("img", {
@@ -152,6 +174,7 @@ function renderBridges(data) {
           alt: "",
         }),
         el("span", { class: "bridge__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
+        el("span", { class: "bridge__tag", "aria-hidden": "true", text: BRIDGE_TAG[bridge.id] || "" }),
         el("span", { class: "bridge__flow", "aria-hidden": "true" }, el("i", {}))
       );
       tile.append(

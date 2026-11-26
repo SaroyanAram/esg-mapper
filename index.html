@@ -150,6 +150,12 @@
             <div class="map-stage__glow" aria-hidden="true"></div>
             <div class="stage-beam" aria-hidden="true"></div>
             <img class="map-stage__paper" src="assets/report-sheet.svg" alt="" width="640" height="720">
+            <div class="stage-radar" aria-hidden="true">
+              <span class="stage-radar__sweep"></span>
+              <span class="stage-radar__blip stage-radar__blip--e"></span>
+              <span class="stage-radar__blip stage-radar__blip--s"></span>
+              <span class="stage-radar__blip stage-radar__blip--g"></span>
+            </div>
             <div class="map-stage__lupa" aria-hidden="true">
               <svg viewBox="0 0 320 320" focusable="false">
                 <circle class="lupa__frame" cx="160" cy="160" r="104"/>
@@ -208,11 +214,14 @@
         <div class="quiz-intro">
           <h2 id="quiz-title">Контрольная точка</h2>
           <p>Пять сигналов. Наведите линзу на верную строку.</p>
-          <svg class="quiz-intro__mark" viewBox="0 0 320 320" aria-hidden="true" focusable="false">
-            <circle cx="160" cy="160" r="96" fill="none" stroke="var(--sun)" stroke-width="2" opacity="0.5"/>
-            <circle cx="160" cy="160" r="48" fill="var(--sun)" opacity="0.18"/>
-            <circle cx="160" cy="160" r="14" fill="var(--sun-ink)"/>
-          </svg>
+          <div class="quiz-beats" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="quiz-mascot" aria-hidden="true">
+            <span class="quiz-mascot__halo"></span>
+            <img src="assets/avatar/lupa.webp" alt="" width="240" height="240">
+            <span class="quiz-mascot__beam"></span>
+          </div>
         </div>
         <div class="quiz-card-wrap" id="quiz-root"></div>
       </div>
@@ -226,7 +235,6 @@
             <h2 id="methodology-title">Печать достоверности</h2>
             <p>Учебная карта. Стандарты — по первоисточникам.</p>
           </div>
-          <span class="seal" aria-hidden="true">IFRS · GRI · GHG · ICMA</span>
         </div>
         <details class="disclosure">
           <summary>Как устроена карта и где границы примера</summary>
