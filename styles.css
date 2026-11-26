@@ -1753,8 +1753,155 @@ a { color: var(--sun-ink); text-decoration-thickness: 1px; text-underline-offset
   .topbar__inner { min-height: 68px; }
 }
 
+/* Люпа-проводник: полевая подсказка на нити маршрута. */
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+.guide__figure {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 84px;
+  transform: translate3d(var(--guide-x, 20px), var(--guide-y, 120px), 0);
+  transition: transform 720ms cubic-bezier(.22, .78, .2, 1);
+}
+.guide__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 14px rgba(23, 63, 53, .18));
+}
+.guide__spark {
+  position: absolute;
+  top: 9px;
+  right: 7px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--sun);
+  box-shadow: 0 0 0 4px rgba(226, 160, 62, .2);
+}
+.guide.is-hopping .guide__figure img { animation: guide-hop 700ms ease; }
+@keyframes guide-hop {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  35% { transform: translateY(-10px) rotate(-4deg); }
+  70% { transform: translateY(-2px) rotate(3deg); }
+}
+.guide__card {
+  position: absolute;
+  left: var(--guide-card-x, 20px);
+  top: var(--guide-card-y, 120px);
+  width: min(318px, calc(100vw - 28px));
+  padding: 13px 16px 12px;
+  pointer-events: auto;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--sun);
+  border-radius: 4px 18px 18px 4px;
+  box-shadow: 0 16px 38px rgba(23, 63, 53, .16);
+}
+.guide__card::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 14px;
+  bottom: 14px;
+  border-left: 1px dashed rgba(157, 96, 18, .55);
+}
+.guide__head { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.guide__name { font: 500 1.15rem/1.2 "Playfair", Georgia, serif; color: var(--ink); }
+.guide__role { flex: 1; color: var(--muted); font-size: .72rem; }
+.guide__off {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--sun-ink);
+  font-size: .72rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.guide__title { margin: 9px 0 3px; font: 500 1.04rem/1.3 "Playfair", Georgia, serif; }
+.guide__text { color: var(--muted); font-size: .84rem; line-height: 1.5; }
+.guide__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 11px; }
+.guide__dots { display: flex; align-items: center; gap: 5px; }
+.guide__dot {
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border: 1px solid rgba(23, 63, 53, .35);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: width 200ms ease, background 200ms ease;
+}
+.guide__dot.is-active { width: 22px; border-color: var(--sun-ink); border-radius: 999px; background: var(--sun); }
+.guide__next {
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper-2);
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide__next:hover { background: var(--sun-ink); }
+.guide-launcher {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 61;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  border: 1px solid var(--sun);
+  border-radius: 999px;
+  background: var(--paper-2);
+  box-shadow: 0 12px 28px rgba(23, 63, 53, .14);
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide-launcher__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sun);
+  box-shadow: 0 0 0 4px rgba(226, 160, 62, .18);
+}
+
+@media (max-width: 979px) {
+  .guide__figure {
+    left: 12px;
+    top: auto;
+    bottom: 12px;
+    width: 68px;
+    transform: none;
+  }
+  .guide__card {
+    left: 88px;
+    right: 12px;
+    top: auto;
+    bottom: 12px;
+    width: auto;
+    max-height: 46vh;
+    overflow: auto;
+    padding: 11px 13px;
+  }
+  .guide__role { display: none; }
+  .guide__text { font-size: .8rem; }
+  .guide-launcher { right: 12px; bottom: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .guide__figure { transition: none; }
+  .guide.is-hopping .guide__figure img { animation: none; }
   .lupa { animation: none; }
   .hero__motion { display: none; }
   .signal-path__dot { display: none; }

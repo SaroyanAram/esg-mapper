@@ -5,6 +5,7 @@ import { createQuiz } from "./quiz.js";
 import { initStory } from "./story.js";
 import { initAvatar } from "./avatar.js";
 import { initMotion } from "./motion.js";
+import { initGuide } from "./guide.js";
 
 const DATA_URL = "data/site-content.json";
 
@@ -86,6 +87,10 @@ function validate(data) {
   if (!Array.isArray(data.cases) || !data.cases.length) fail("cases");
   if (!Array.isArray(data.quiz) || !data.quiz.length) fail("quiz");
   if (!data.quizResult || !data.quizResult.low) fail("quizResult");
+  if (!data.guide || !Array.isArray(data.guide.steps) || !data.guide.steps.length) fail("guide");
+  if (!data.guide.name || !data.guide.off || !data.guide.on || !data.guide.next || !data.guide.progress) fail("guide controls");
+  if (data.guide.steps.some((step) => !step.id || !step.title || !step.text || !step.target)) fail("guide.steps");
+  if (data.guide.steps.some((step) => !document.getElementById(step.id) || !document.getElementById(step.target))) fail("guide anchors");
   if (!data.methodology || typeof data.methodology.body !== "string") fail("methodology");
   if (!data.methodology.title || !data.methodology.summary || !data.methodology.scope) fail("methodology title/summary/scope");
   if (!Array.isArray(data.sources) || data.sources.some((source) => !source.short)) fail("sources");
@@ -387,6 +392,7 @@ function init(data) {
   initAvatar();
   initMotion();
   initRoadmap();
+  initGuide(data);
   alignToHash();
 }
 
