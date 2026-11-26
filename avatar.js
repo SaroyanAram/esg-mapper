@@ -1,8 +1,10 @@
 /* Подключение кадров из Blender. Пока флаг выключен, остаётся локальная SVG/DOM-заглушка. */
 
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 const FILES = {
   hero: "assets/avatar/hero-backdrop.webp",
-  lupa: "assets/avatar/lupa.webp",
+  lupa: reduceMotion ? "assets/avatar/lupa.webp" : "assets/avatar/lupa-pulse.webp",
   e: "assets/avatar/portal-e.webp",
   s: "assets/avatar/portal-s.webp",
   g: "assets/avatar/portal-g.webp",
@@ -39,6 +41,18 @@ export async function initAvatar() {
     if (key === "report") {
       const paper = document.querySelector(".map-stage__paper");
       if (paper) paper.src = file;
+    }
+  }
+
+  const video = document.querySelector(".hero__motion");
+  if (flags.motion === false) {
+    if (video) {
+      video.pause();
+      video.querySelectorAll("source").forEach((source) => source.remove());
+      video.style.display = "none";
+    }
+    for (const image of document.querySelectorAll(".lupa__photo")) {
+      if (image.src.endsWith("lupa-pulse.webp")) image.src = "assets/avatar/lupa.webp";
     }
   }
 }

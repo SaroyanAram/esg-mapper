@@ -6,5 +6,6 @@
   "g": true,
   "report": true,
   "result": true,
-  "outro": true
+  "outro": true,
+  "motion": true
 }

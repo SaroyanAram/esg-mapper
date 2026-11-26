@@ -241,10 +241,27 @@ a { color: var(--sun-ink); text-decoration-thickness: 1px; text-underline-offset
   position: absolute;
   inset: 0;
   z-index: -1;
+  overflow: hidden;
+  background: var(--paper);
+}
+.hero__backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background:
-    radial-gradient(ellipse at 78% 36%, rgba(226, 160, 62, 0.22), transparent 38%),
-    radial-gradient(ellipse at 70% 74%, rgba(46, 158, 99, 0.16), transparent 42%),
-    linear-gradient(90deg, rgba(247, 245, 235, 0.98), rgba(247, 245, 235, 0.72) 42%, rgba(247, 245, 235, 0.2) 72%);
+    radial-gradient(ellipse at 78% 36%, rgba(226, 160, 62, 0.18), transparent 38%),
+    radial-gradient(ellipse at 70% 74%, rgba(46, 158, 99, 0.12), transparent 42%),
+    linear-gradient(90deg, rgba(247, 245, 235, 0.97), rgba(247, 245, 235, 0.78) 42%, rgba(247, 245, 235, 0.18) 72%, rgba(247, 245, 235, 0.42));
+}
+.hero__motion {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% center;
+  opacity: 0.68;
 }
 .hero__inner {
   display: grid;
@@ -820,9 +837,7 @@ a { color: var(--sun-ink); text-decoration-thickness: 1px; text-underline-offset
 /* ---------- Кадры, включаемые manifest.json ---------- */
 
 .avatar-hero .hero__backdrop {
-  background-image:
-    linear-gradient(90deg, rgba(247, 245, 235, 0.97) 0%, rgba(247, 245, 235, 0.84) 34%, rgba(247, 245, 235, 0.24) 68%, rgba(247, 245, 235, 0.5) 100%),
-    url("assets/avatar/hero-backdrop.webp");
+  background-image: url("assets/avatar/hero-backdrop.webp");
   background-position: center;
   background-size: cover;
 }
@@ -928,6 +943,7 @@ a { color: var(--sun-ink); text-decoration-thickness: 1px; text-underline-offset
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .lupa { animation: none; }
+  .hero__motion { display: none; }
   .signal-path__dot { display: none; }
   .btn:hover, .source-card:hover, .case-row:hover { transform: none; }
   * { transition-duration: 0.01ms !important; }

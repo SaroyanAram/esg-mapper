@@ -46,7 +46,12 @@
   <main id="main">
     <!-- Акт 1. Светлый стол, Люпа и путь сигнала -->
     <section class="act hero" id="signal" aria-labelledby="hero-title">
-      <div class="hero__backdrop" aria-hidden="true"></div>
+      <div class="hero__backdrop" aria-hidden="true">
+        <video class="hero__motion" autoplay muted loop playsinline preload="metadata" poster="assets/avatar/hero-backdrop.webp">
+          <source src="assets/avatar/atlas-loop.webm" type="video/webm">
+          <source src="assets/avatar/atlas-loop.mp4" type="video/mp4">
+        </video>
+      </div>
       <div class="shell hero__inner">
         <div class="hero__copy">
           <p class="hero__eyebrow">Живой атлас · интерактивная карта</p>
