@@ -4,6 +4,7 @@ import { createCatalog } from "./catalog.js";
 import { createQuiz } from "./quiz.js";
 import { initStory } from "./story.js";
 import { initAvatar } from "./avatar.js";
+import { initMotion } from "./motion.js";
 
 const DATA_URL = "data/site-content.json";
 
@@ -107,9 +108,14 @@ function renderSourceCards() {
       "aria-label": `Показать кейсы ${card.word}`,
     });
     button.append(
+      el("span", { class: "source-card__scan", "aria-hidden": "true" }),
       el("span", { class: "source-card__letter", "aria-hidden": "true", text: card.key }),
       el("h3", { text: card.word }),
       el("p", { text: card.caption }),
+      el("span", {
+        class: "source-card__wave",
+        "aria-hidden": "true",
+      }, el("i", {}), el("i", {}), el("i", {})),
       el("span", { class: "source-card__hint", text: "Показать кейсы" })
     );
     button.addEventListener("click", () => {
@@ -139,13 +145,14 @@ function renderBridges(data) {
       media.append(
         el("img", {
           src: `assets/bridge-${bridge.id}.webp`,
-          width: "384",
-          height: "218",
+          width: "640",
+          height: "360",
           loading: "lazy",
           decoding: "async",
           alt: "",
         }),
-        el("span", { class: "bridge__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") })
+        el("span", { class: "bridge__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
+        el("span", { class: "bridge__flow", "aria-hidden": "true" }, el("i", {}))
       );
       tile.append(
         media,
@@ -240,6 +247,7 @@ function init(data) {
   renderBridges(data);
   initStory();
   initAvatar();
+  initMotion();
   alignToHash();
 }
 

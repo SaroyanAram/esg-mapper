@@ -41,6 +41,7 @@
         </ul>
       </nav>
     </div>
+    <div class="scroll-progress" aria-hidden="true"></div>
   </header>
 
   <main id="main">
@@ -118,6 +119,7 @@
           <div>
             <h2 id="bridges-title">Четыре моста в отчётность</h2>
             <p>Люпа наводит линзу — событие превращается в строку учёта.</p>
+            <span class="bridge-kicker" aria-hidden="true">сигнал → линза → строка отчёта</span>
           </div>
           <p class="bridge-note" id="bridge-note"></p>
         </div>
@@ -146,6 +148,7 @@
         <div class="map-layout">
           <aside class="map-stage" aria-label="Сцена с линзой">
             <div class="map-stage__glow" aria-hidden="true"></div>
+            <div class="stage-beam" aria-hidden="true"></div>
             <img class="map-stage__paper" src="assets/report-sheet.svg" alt="" width="640" height="720">
             <div class="map-stage__lupa" aria-hidden="true">
               <svg viewBox="0 0 320 320" focusable="false">
@@ -162,6 +165,8 @@
               <span data-stage-report="cashflow">ОДДС</span>
               <span data-stage-report="notes">Примечания</span>
             </div>
+            <div class="stage-reportline" aria-hidden="true"><span></span></div>
+            <p class="stage-caption" aria-hidden="true">Линза наведена — сигнал становится строкой</p>
           </aside>
 
           <div class="map-list">
