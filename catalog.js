@@ -190,9 +190,14 @@ function buildRow(item) {
   for (const key of item.categories || []) esg.append(el("i", { dataset: { esg: key }, text: key }));
   const forms = el("span", { class: "case-row__forms", "aria-hidden": "true" });
   for (const key of item.forms || []) forms.append(el("span", { text: FORM_LABELS[key] || key }));
+  const chain = (item.chain || []).map((step) => String(step).replace(/\.$/, "")).join(" → ");
   row.append(
     el("span", { class: "case-row__id", "aria-hidden": "true", text: item.id }),
-    el("span", {}, el("span", { class: "case-row__title", text: item.title }), forms),
+    el("span", { class: "case-row__main" },
+      el("span", { class: "case-row__title", text: item.title }),
+      chain ? el("span", { class: "case-row__chain", text: chain, title: chain }) : null,
+      forms
+    ),
     esg,
     el("span", { class: "case-row__arrow", "aria-hidden": "true", text: "›" })
   );

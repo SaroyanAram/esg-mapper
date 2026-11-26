@@ -16,6 +16,20 @@ const dom = {
   lede: document.getElementById("hero-lede"),
   legend: document.getElementById("link-legend"),
   warning: document.getElementById("method-warning"),
+  thesisTitle: document.getElementById("thesis-title"),
+  thesisBody: document.getElementById("thesis-body"),
+  thesisCaveat: document.getElementById("thesis-caveat"),
+  roadmap: document.getElementById("roadmap"),
+  exampleKicker: document.getElementById("example-kicker"),
+  exampleTitle: document.getElementById("example-title"),
+  exampleFlow: document.getElementById("example-flow"),
+  exampleCta: document.getElementById("example-cta"),
+  catalogHint: document.getElementById("catalog-hint"),
+  quizHeading: document.getElementById("quiz-title"),
+  quizIntroText: document.getElementById("quiz-intro-text"),
+  methodTitle: document.getElementById("methodology-title"),
+  methodSummary: document.getElementById("methodology-summary"),
+  methodScope: document.getElementById("method-scope"),
   sourceGrid: document.getElementById("source-grid"),
   bridges: document.getElementById("bridges-list"),
   bridgeNote: document.getElementById("bridge-note"),
@@ -58,6 +72,10 @@ function validate(data) {
   if (!data || typeof data !== "object") fail("пустой ответ");
   if (!data.intro || typeof data.intro.title !== "string") fail("intro");
   if (typeof data.intro.headline !== "string" || typeof data.intro.lede !== "string") fail("intro.headline/lede");
+  if (!data.intro.thesis?.title || !data.intro.thesis?.body || !data.intro.thesis?.caveat) fail("intro.thesis");
+  if (!Array.isArray(data.intro.roadmap) || data.intro.roadmap.length < 4) fail("intro.roadmap");
+  if (!data.intro.workedExample?.title || !Array.isArray(data.intro.workedExample.steps)) fail("intro.workedExample");
+  if (!data.intro.quizIntro?.title || !data.intro.quizIntro?.body) fail("intro.quizIntro");
   if (!Array.isArray(data.intro.statsLabels) || data.intro.statsLabels.length < 3) fail("intro.statsLabels");
   if (!Array.isArray(data.sourceCards) || data.sourceCards.length !== 3) fail("sourceCards");
   if (!Array.isArray(data.bridges) || !data.bridges.length) fail("bridges");
@@ -66,6 +84,7 @@ function validate(data) {
   if (!Array.isArray(data.quiz) || !data.quiz.length) fail("quiz");
   if (!data.quizResult || !data.quizResult.low) fail("quizResult");
   if (!data.methodology || typeof data.methodology.body !== "string") fail("methodology");
+  if (!data.methodology.title || !data.methodology.summary || !data.methodology.scope) fail("methodology title/summary/scope");
   if (!Array.isArray(data.sources) || data.sources.some((source) => !source.short)) fail("sources");
   for (const item of data.cases) {
     if (!item.id || !item.title) fail("идентификатор кейса");
@@ -101,6 +120,82 @@ function renderStats(data) {
   });
 }
 
+function renderThesis(data) {
+  const thesis = data.intro.thesis;
+  if (dom.thesisTitle) dom.thesisTitle.textContent = thesis.title;
+  if (dom.thesisBody) dom.thesisBody.textContent = thesis.body;
+  if (dom.thesisCaveat) dom.thesisCaveat.textContent = thesis.caveat;
+  if (dom.catalogHint) dom.catalogHint.textContent = data.intro.catalogHint || "";
+  if (dom.quizHeading) dom.quizHeading.textContent = data.intro.quizIntro.title;
+  if (dom.quizIntroText) dom.quizIntroText.textContent = data.intro.quizIntro.body;
+  if (dom.methodTitle) dom.methodTitle.textContent = data.methodology.title;
+  if (dom.methodSummary) dom.methodSummary.textContent = data.methodology.summary;
+  if (dom.methodScope) dom.methodScope.textContent = data.methodology.scope;
+}
+
+function renderRoadmap(data) {
+  if (!dom.roadmap) return;
+  const items = data.intro.roadmap.map((step) =>
+    el("a", { class: "roadmap__item", href: `#${step.id}`, dataset: { step: step.id } },
+      el("span", { class: "roadmap__step", "aria-hidden": "true", text: step.step }),
+      el("span", { class: "roadmap__title", text: step.title }),
+      el("span", { class: "roadmap__text", text: step.text })
+    )
+  );
+  dom.roadmap.replaceChildren(...items);
+}
+
+function initRoadmap() {
+  if (!dom.roadmap) return;
+  const items = [...dom.roadmap.querySelectorAll(".roadmap__item")];
+  if (!items.length) return;
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const line = 170;
+    let active = items[0].dataset.step;
+    for (const item of items) {
+      const section = document.getElementById(item.dataset.step);
+      if (!section) continue;
+      if (section.getBoundingClientRect().top <= line) active = item.dataset.step;
+    }
+    for (const item of items) {
+      const isActive = item.dataset.step === active;
+      item.classList.toggle("is-active", isActive);
+      if (isActive) item.setAttribute("aria-current", "step");
+      else item.removeAttribute("aria-current");
+    }
+  };
+  const schedule = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+  addEventListener("scroll", schedule, { passive: true });
+  addEventListener("resize", schedule, { passive: true });
+  update();
+}
+
+function renderWorkedExample(data) {
+  const example = data.intro.workedExample;
+  if (dom.exampleKicker) dom.exampleKicker.textContent = example.kicker;
+  if (dom.exampleTitle) dom.exampleTitle.textContent = example.title;
+  if (dom.exampleFlow) {
+    const steps = example.steps.map((step, index) =>
+      el("article", { class: "example-step" },
+        el("span", { class: "example-step__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
+        el("h3", { text: step.label }),
+        el("p", { text: step.text })
+      )
+    );
+    dom.exampleFlow.replaceChildren(...steps);
+  }
+  if (dom.exampleCta) {
+    dom.exampleCta.textContent = example.cta;
+    dom.exampleCta.dataset.openCase = example.caseId;
+  }
+}
+
 function renderSourceCards(data) {
   if (!dom.sourceGrid) return;
   const cards = data.sourceCards.map((card) => {
@@ -114,6 +209,7 @@ function renderSourceCards(data) {
       el("span", { class: "source-card__letter", "aria-hidden": "true", text: card.key }),
       el("h3", { text: card.word }),
       el("p", { text: card.caption }),
+      el("span", { class: "source-card__example", text: card.example || "" }),
       el("span", { class: "source-card__visual", text: card.visual }),
       el("span", {
         class: "source-card__wave",
@@ -249,6 +345,9 @@ function init(data) {
   dom.error.hidden = true;
 
   renderStats(data);
+  renderThesis(data);
+  renderRoadmap(data);
+  renderWorkedExample(data);
   renderSourceCards(data);
   renderMethodology(data.methodology);
   renderSources(data.sources);
@@ -261,6 +360,7 @@ function init(data) {
   initStory();
   initAvatar();
   initMotion();
+  initRoadmap();
   alignToHash();
 }
 

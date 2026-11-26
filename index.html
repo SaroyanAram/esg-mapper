@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ESG Mapper — живой атлас signal-to-report</title>
-  <meta name="description" content="Интерактивная карта: как ESG-событие доходит до баланса, отчёта о финансовых результатах и денежных потоков.">
+  <title>ESG Mapper — как ESG-фактор доходит до отчётности</title>
+  <meta name="description" content="Учебный атлас: как экологический, социальный или управленческий факт доходит до баланса, отчёта о финансовых результатах и денежных потоков.">
   <meta name="color-scheme" content="light">
-  <meta property="og:title" content="ESG Mapper — живой атлас">
-  <meta property="og:description" content="Одно ESG-событие меняет три отчёта. Пройдите по следу с Люпой-линзой.">
+  <meta property="og:title" content="ESG Mapper — учебный атлас">
+  <meta property="og:description" content="ESG-факторы влияют на прибыль. Разберите 12 кейсов и посмотрите, как событие становится строкой отчёта.">
   <meta property="og:image" content="assets/og-esg-mapper.jpg">
   <meta property="og:url" content="https://SaroyanAram.github.io/esg-mapper/">
   <link rel="canonical" href="https://SaroyanAram.github.io/esg-mapper/">
@@ -32,12 +32,13 @@
 
       <nav class="site-nav" id="site-nav" aria-label="Маршрут по атласу">
         <ul>
-          <li><a href="#signal">Сигнал</a></li>
-          <li><a href="#source">Источник</a></li>
-          <li><a href="#mechanisms">Мосты</a></li>
-          <li><a href="#catalog">Карта</a></li>
+          <li><a href="#thesis">Суть</a></li>
+          <li><a href="#source">ESG-факторы</a></li>
+          <li><a href="#mechanisms">Механизмы</a></li>
+          <li><a href="#example">Разбор</a></li>
+          <li><a href="#catalog">Кейсы</a></li>
           <li><a href="#quiz">Проверка</a></li>
-          <li><a href="#methodology">Источники</a></li>
+          <li><a href="#methodology">Стандарты</a></li>
         </ul>
       </nav>
     </div>
@@ -101,15 +102,31 @@
           </div>
         </div>
       </div>
-      <p class="hero__scroll" aria-hidden="true">Листайте, чтобы проследить путь ↓</p>
+      <p class="hero__scroll" aria-hidden="true">Листайте: дальше главная идея ↓</p>
     </section>
 
-    <!-- Акт 2. Три источника сигнала -->
+    <!-- Главная идея и маршрут -->
+    <section class="thesis" id="thesis" aria-labelledby="thesis-title">
+      <div class="shell thesis__inner">
+        <div class="thesis__main">
+          <p class="thesis__label">Главная идея</p>
+          <h2 id="thesis-title"></h2>
+          <p id="thesis-body"></p>
+        </div>
+        <p class="thesis__caveat" id="thesis-caveat"></p>
+      </div>
+    </section>
+
+    <div class="roadmap-wrap">
+      <nav class="roadmap shell" id="roadmap" aria-label="Как читать атлас"></nav>
+    </div>
+
+    <!-- Акт 2. Три ESG-фактора -->
     <section class="act act--source" id="source" aria-labelledby="source-title">
       <div class="shell">
         <div class="act__head">
-          <h2 id="source-title">Сначала приходит сигнал</h2>
-          <p>Сигнал ещё не статья. Нужен мост.</p>
+          <h2 id="source-title">Сначала происходит событие</h2>
+          <p>Выброс, обучение, штраф, решение правления. ESG-фактор ещё не цифра в отчёте - посмотрите, что будет дальше.</p>
         </div>
         <div class="source-grid" id="source-grid"></div>
       </div>
@@ -120,9 +137,9 @@
       <div class="shell">
         <div class="act__head act__head--split">
           <div>
-            <h2 id="bridges-title">Четыре моста в отчётность</h2>
-            <p>Люпа наводит линзу — событие превращается в строку учёта.</p>
-            <span class="bridge-kicker" aria-hidden="true">сигнал → линза → строка отчёта</span>
+            <h2 id="bridges-title">Четыре механизма учёта</h2>
+            <p>Бухгалтер не отражает «устойчивость» отдельной строкой. Он применяет обычные правила: расход, актив, обязательство или убыток.</p>
+            <span class="bridge-kicker" aria-hidden="true">событие → правило → отчёт</span>
           </div>
           <p class="bridge-note" id="bridge-note"></p>
         </div>
@@ -130,16 +147,29 @@
       </div>
     </section>
 
-    <!-- Акт 4. Карта следов -->
+    <!-- Акт 4. Один разбор до конца -->
+    <section class="act act--example" id="example" aria-labelledby="example-title">
+      <div class="shell">
+        <div class="act__head">
+          <p class="example__kicker" id="example-kicker"></p>
+          <h2 id="example-title"></h2>
+        </div>
+        <div class="example-flow" id="example-flow"></div>
+        <button class="btn btn--ghost" id="example-cta" type="button"></button>
+      </div>
+    </section>
+
+    <!-- Акт 5. Кейсы -->
     <section class="act act--catalog" id="catalog" aria-labelledby="catalog-title">
       <div class="shell">
         <div class="act__head act__head--split">
           <div>
-            <h2 id="catalog-title" tabindex="-1">Карта следов</h2>
+            <h2 id="catalog-title" tabindex="-1">12 ситуаций</h2>
             <p id="catalog-count" aria-live="polite">Загрузка каталога…</p>
+            <p class="catalog-hint" id="catalog-hint"></p>
           </div>
           <button class="btn btn--ghost" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
-            Настроить линзу <span class="badge" id="filters-badge" hidden>0</span>
+            Фильтры <span class="badge" id="filters-badge" hidden>0</span>
           </button>
         </div>
 
@@ -167,7 +197,7 @@
                 <circle class="lupa__glint" cx="145" cy="145" r="9"/>
               </svg>
             </div>
-            <p class="map-stage__title" id="stage-title" aria-live="polite">Выберите след</p>
+            <p class="map-stage__title" id="stage-title" aria-live="polite">Выберите кейс</p>
             <div class="map-stage__reports" aria-hidden="true">
               <span data-stage-report="balance">Баланс</span>
               <span data-stage-report="income">ОФР</span>
@@ -175,7 +205,7 @@
               <span data-stage-report="notes">Примечания</span>
             </div>
             <div class="stage-reportline" aria-hidden="true"><span></span></div>
-            <p class="stage-caption" aria-hidden="true">Линза наведена — сигнал становится строкой</p>
+            <p class="stage-caption" aria-hidden="true">Выбранное событие → строки отчёта</p>
           </aside>
 
           <div class="map-list">
@@ -183,7 +213,7 @@
               <label class="search">
                 <span class="visually-hidden">Найти след</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2"/></svg>
-                <input id="catalog-search" type="search" placeholder="Найти след" autocomplete="off">
+                <input id="catalog-search" type="search" placeholder="Поиск по кейсам" autocomplete="off">
               </label>
               <button class="btn btn--ghost btn--small" id="catalog-reset" type="button">Сбросить</button>
             </div>
@@ -198,7 +228,7 @@
             </div>
 
             <div class="case-list" id="catalog-results"></div>
-            <button class="show-all" id="show-all" type="button" hidden>Открыть архив: ещё <span id="hidden-count">0</span></button>
+            <button class="show-all" id="show-all" type="button" hidden>Показать ещё <span id="hidden-count">0</span> кейсов</button>
           </div>
         </div>
       </div>
@@ -213,12 +243,12 @@
       </dialog>
     </section>
 
-    <!-- Акт 5. Проверка -->
+    <!-- Акт 6. Проверка -->
     <section class="act act--quiz" id="quiz" aria-labelledby="quiz-title">
       <div class="shell quiz-layout">
         <div class="quiz-intro">
-          <h2 id="quiz-title">Контрольная точка</h2>
-          <p>Пять сигналов. Наведите линзу на верную строку.</p>
+          <h2 id="quiz-title"></h2>
+          <p id="quiz-intro-text"></p>
           <div class="quiz-beats" aria-hidden="true">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
@@ -237,11 +267,12 @@
       <div class="shell">
         <div class="act__head act__head--split">
           <div>
-            <h2 id="methodology-title">Печать достоверности</h2>
-            <p>Учебная карта. Стандарты — по первоисточникам.</p>
+            <h2 id="methodology-title"></h2>
+            <p id="methodology-summary"></p>
           </div>
           <p class="method-warning" id="method-warning"></p>
         </div>
+        <p class="method-scope" id="method-scope"></p>
         <details class="disclosure">
           <summary>Как устроена карта и где границы примера</summary>
           <div id="methodology-body"></div>
@@ -254,8 +285,8 @@
 
   <footer class="footer">
     <div class="shell footer__inner">
-      <p>ESG Mapper — учебный проект о связи устойчивости и финансовой отчётности.</p>
-      <a href="#signal">Вернуться к сигналу ↑</a>
+      <p>ESG Mapper - учебный проект о том, как ESG-фактор доходит до финансовой отчётности.</p>
+      <a href="#thesis">К главной идее ↑</a>
     </div>
   </footer>
 
