@@ -112,6 +112,7 @@
           <p class="thesis__label">Главная идея</p>
           <h2 id="thesis-title"></h2>
           <p id="thesis-body"></p>
+          <div class="channel-grid" id="thesis-channels" aria-label="Три пути от ESG-факта к цифрам"></div>
         </div>
         <p class="thesis__caveat" id="thesis-caveat"></p>
       </div>
@@ -167,6 +168,7 @@
             <h2 id="catalog-title" tabindex="-1">12 ситуаций</h2>
             <p id="catalog-count" aria-live="polite">Загрузка каталога…</p>
             <p class="catalog-hint" id="catalog-hint"></p>
+            <button class="catalog-standard" id="catalog-standard" type="button" hidden></button>
           </div>
           <button class="btn btn--ghost" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
             Фильтры <span class="badge" id="filters-badge" hidden>0</span>
@@ -236,6 +238,10 @@
       <dialog class="dossier" id="case-dossier" aria-labelledby="dossier-title">
         <div class="dossier__bar">
           <span class="dossier__id" id="dossier-id">00</span>
+          <div class="dossier__actions">
+            <button class="dossier__share" id="dossier-share" type="button">Ссылка на кейс</button>
+            <span class="dossier__share-status" id="dossier-share-status" role="status" aria-live="polite"></span>
+          </div>
           <button class="dossier__close" id="dossier-close" type="button" aria-label="Закрыть досье">×</button>
         </div>
         <h3 id="dossier-title" tabindex="-1"></h3>

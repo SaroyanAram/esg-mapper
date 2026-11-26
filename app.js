@@ -19,6 +19,7 @@ const dom = {
   thesisTitle: document.getElementById("thesis-title"),
   thesisBody: document.getElementById("thesis-body"),
   thesisCaveat: document.getElementById("thesis-caveat"),
+  thesisChannels: document.getElementById("thesis-channels"),
   roadmap: document.getElementById("roadmap"),
   exampleKicker: document.getElementById("example-kicker"),
   exampleTitle: document.getElementById("example-title"),
@@ -73,6 +74,8 @@ function validate(data) {
   if (!data.intro || typeof data.intro.title !== "string") fail("intro");
   if (typeof data.intro.headline !== "string" || typeof data.intro.lede !== "string") fail("intro.headline/lede");
   if (!data.intro.thesis?.title || !data.intro.thesis?.body || !data.intro.thesis?.caveat) fail("intro.thesis");
+  if (!Array.isArray(data.intro.thesis.channels) || data.intro.thesis.channels.length !== 3) fail("intro.thesis.channels");
+  if (data.intro.thesis.channels.some((channel) => !channel.title || !channel.text || !channel.example || !channel.caseId || !channel.linkText)) fail("intro.thesis.channels поля");
   if (!Array.isArray(data.intro.roadmap) || data.intro.roadmap.length < 4) fail("intro.roadmap");
   if (!data.intro.workedExample?.title || !Array.isArray(data.intro.workedExample.steps)) fail("intro.workedExample");
   if (!data.intro.quizIntro?.title || !data.intro.quizIntro?.body) fail("intro.quizIntro");
@@ -131,6 +134,25 @@ function renderThesis(data) {
   if (dom.methodTitle) dom.methodTitle.textContent = data.methodology.title;
   if (dom.methodSummary) dom.methodSummary.textContent = data.methodology.summary;
   if (dom.methodScope) dom.methodScope.textContent = data.methodology.scope;
+}
+
+function renderChannels(data) {
+  if (!dom.thesisChannels) return;
+  const cards = data.intro.thesis.channels.map((channel, index) =>
+    el("article", { class: "channel-card", dataset: { channel: String(index + 1) } },
+      el("span", { class: "channel-card__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
+      el("h3", { text: channel.title }),
+      el("p", { text: channel.text }),
+      el("p", { class: "channel-card__example", text: channel.example }),
+      el("button", {
+        class: "channel-card__link",
+        type: "button",
+        dataset: { openCase: channel.caseId },
+        text: channel.linkText,
+      })
+    )
+  );
+  dom.thesisChannels.replaceChildren(...cards);
 }
 
 function renderRoadmap(data) {
@@ -346,6 +368,7 @@ function init(data) {
 
   renderStats(data);
   renderThesis(data);
+  renderChannels(data);
   renderRoadmap(data);
   renderWorkedExample(data);
   renderSourceCards(data);
@@ -354,6 +377,9 @@ function init(data) {
 
   if (!catalog) catalog = createCatalog(data);
   else catalog.resetAll();
+
+  const deepCase = new URLSearchParams(location.search).get("case");
+  if (deepCase && data.cases.some((item) => item.id === deepCase)) catalog.openCase(deepCase);
 
   if (!quiz) quiz = createQuiz(data);
   renderBridges(data);

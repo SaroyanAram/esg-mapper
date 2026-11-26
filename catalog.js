@@ -46,7 +46,7 @@ const FILTER_OPTIONS = {
   link: [["all", "Все"], ["direct", "Прямая"], ["indirect", "Косвенная"]],
 };
 
-const DEFAULT_FILTERS = { query: "", category: "all", mechanism: "all", form: "all", link: "all" };
+const DEFAULT_FILTERS = { query: "", category: "all", mechanism: "all", form: "all", link: "all", standard: "" };
 const FEATURED_LIMIT = 3;
 
 function el(tag, attrs = {}, ...children) {
@@ -95,6 +95,17 @@ function buildSearchIndex(item) {
   return normalizeSearch(parts.filter(Boolean).join(" "));
 }
 
+export function extractStandards(text) {
+  const found = new Map();
+  const pattern = /\b(IAS|IFRS|IFRIC|GRI)\s+\d+\b|GHG Protocol|ICMA SLB Principles|Концептуальные основы/gi;
+  for (const match of String(text || "").matchAll(pattern)) {
+    const value = match[0].replace(/\s+/g, " ").trim();
+    const key = value.toLowerCase();
+    if (!found.has(key)) found.set(key, value);
+  }
+  return [...found.values()];
+}
+
 export function filterCases(cases, filters) {
   const words = normalizeSearch(filters.query).split(" ").filter(Boolean);
   return cases.filter((item) => {
@@ -102,6 +113,7 @@ export function filterCases(cases, filters) {
     if (filters.mechanism !== "all" && !(item.mechanisms || []).includes(filters.mechanism)) return false;
     if (filters.form !== "all" && !(item.forms || []).includes(filters.form)) return false;
     if (filters.link !== "all" && !(item.links || []).includes(filters.link)) return false;
+    if (filters.standard && !extractStandards(item.references).includes(filters.standard)) return false;
     if (!words.length) return true;
     const haystack = buildSearchIndex(item);
     return words.every((word) => haystack.includes(word));
@@ -122,6 +134,25 @@ function dossierBlock(title, ...children) {
   return el("div", { class: "dossier__block" }, el("h4", { text: title }), ...children);
 }
 
+function buildDossierLegend(item) {
+  const legend = el("div", { class: "dossier__legend", "aria-label": "Как читать кейс" });
+  const standard = extractStandards(item.references)[0];
+  const steps = [
+    ["Событие", item.chain?.[0] || item.indicator || "—"],
+    ["Механизм", (item.mechanisms || []).map((key) => MECHANISM_LABELS[key] || key).join(" · ")],
+    ["Правило", standard],
+    ["Отчёты", (item.forms || []).map((key) => FORM_LABELS[key] || key).join(" · ")],
+  ];
+  steps.forEach(([label, value], index) => {
+    if (index) legend.append(el("span", { class: "dossier__legend-arrow", "aria-hidden": "true", text: "→" }));
+    const caption = standard && index === 2
+      ? el("button", { class: "standard-chip", type: "button", dataset: { standard }, title: `Показать кейсы: ${standard}`, text: value || "—" })
+      : el("span", { text: value || "—" });
+    legend.append(el("span", { class: "dossier__legend-step" }, el("b", { text: label }), caption));
+  });
+  return legend;
+}
+
 function buildDossier(item, sourcesById) {
   const wrap = el("div");
   const tags = el("div", { class: "dossier__tags" });
@@ -131,7 +162,7 @@ function buildDossier(item, sourcesById) {
   }
   for (const key of item.links || []) tags.append(el("span", { text: LINK_LABELS[key]?.word || key }));
   for (const key of item.mechanisms || []) tags.append(el("span", { text: MECHANISM_LABELS[key] || key }));
-  wrap.append(tags);
+  wrap.append(tags, buildDossierLegend(item));
 
   const grid = el("div", { class: "dossier__grid" });
   const main = el("div");
@@ -173,6 +204,21 @@ function buildDossier(item, sourcesById) {
   if (/GHG/.test(item.references || "") && sourcesById["ghg"]) links.append(externalLink(sourcesById["ghg"].url, "GHG Protocol"));
   if (/ICMA/.test(item.references || "") && sourcesById["icma"]) links.append(externalLink(sourcesById["icma"].url, "ICMA"));
   refs.append(links);
+
+  const standards = extractStandards(item.references);
+  if (standards.length) {
+    const chips = el("div", { class: "dossier__standards", "aria-label": "Стандарты: показать кейсы" });
+    for (const standard of standards.slice(0, 5)) {
+      chips.append(el("button", {
+        class: "standard-chip",
+        type: "button",
+        dataset: { standard },
+        title: `Показать кейсы: ${standard}`,
+        text: standard,
+      }));
+    }
+    refs.append(chips);
+  }
   side.append(refs);
 
   grid.append(main, side);
@@ -219,6 +265,7 @@ export function createCatalog(data) {
     reset: document.getElementById("catalog-reset"),
     results: document.getElementById("catalog-results"),
     count: document.getElementById("catalog-count"),
+    standard: document.getElementById("catalog-standard"),
     title: document.getElementById("catalog-title"),
     panel: document.getElementById("filters-panel"),
     toggle: document.getElementById("filters-toggle"),
@@ -231,6 +278,8 @@ export function createCatalog(data) {
     dossierTitle: document.getElementById("dossier-title"),
     dossierBody: document.getElementById("dossier-body"),
     dossierClose: document.getElementById("dossier-close"),
+    share: document.getElementById("dossier-share"),
+    shareStatus: document.getElementById("dossier-share-status"),
     stageTitle: document.getElementById("stage-title"),
     lupa: document.getElementById("lupa"),
     mapLupa: document.querySelector(".map-stage__lupa"),
@@ -243,6 +292,8 @@ export function createCatalog(data) {
   let selectedId = null;
   let expanded = false;
   let lastTrigger = null;
+  let suppressRestore = false;
+  let shareTimer = null;
 
   function renderFilterGroup(group, options) {
     const container = els.panel.querySelector(`[data-filter="${group}"]`);
@@ -271,6 +322,8 @@ export function createCatalog(data) {
 
   function syncControls() {
     els.search.value = state.query;
+    els.standard.hidden = !state.standard;
+    els.standard.textContent = state.standard ? `Стандарт: ${state.standard} ×` : "";
     for (const input of els.panel.querySelectorAll('input[type="radio"]')) {
       input.checked = state[input.name] === input.value;
     }
@@ -289,7 +342,7 @@ export function createCatalog(data) {
   }
 
   function isDefaultView() {
-    return !state.query && activeGroupCount() === 0;
+    return !state.query && !state.standard && activeGroupCount() === 0;
   }
 
   function setStage(item) {
@@ -310,12 +363,32 @@ export function createCatalog(data) {
     }
   }
 
+  function caseUrl(id) {
+    return `${location.pathname}?case=${encodeURIComponent(id)}#catalog`;
+  }
+
+  function setCaseParam(id) {
+    history.replaceState(null, "", caseUrl(id));
+  }
+
+  function clearCaseParam() {
+    const params = new URLSearchParams(location.search);
+    if (!params.has("case")) return;
+    params.delete("case");
+    const query = params.toString();
+    history.replaceState(null, "", `${location.pathname}${query ? `?${query}` : ""}${location.hash}`);
+  }
+
   function openDossier(item) {
     selectedId = item.id;
     els.dossierId.textContent = item.id;
     els.dossierTitle.textContent = item.title;
     els.dossierBody.replaceChildren(buildDossier(item, sourcesById));
     setStage(item);
+    setCaseParam(item.id);
+    clearTimeout(shareTimer);
+    if (els.share) els.share.textContent = "Ссылка на кейс";
+    if (els.shareStatus) els.shareStatus.textContent = "";
     if (!els.dossier.open) els.dossier.showModal();
     els.dossierTitle.focus({ preventScroll: true });
   }
@@ -331,6 +404,8 @@ export function createCatalog(data) {
     const wasOpen = els.dossier.open;
     if (wasOpen) els.dossier.close();
     selectedId = null;
+    clearCaseParam();
+    clearTimeout(shareTimer);
     setStage(null);
     if (!wasOpen && restoreFocus && lastTrigger?.isConnected) {
       const trigger = lastTrigger;
@@ -412,6 +487,12 @@ export function createCatalog(data) {
   });
 
   els.reset.addEventListener("click", () => resetAll());
+  els.standard.addEventListener("click", () => {
+    state.standard = "";
+    syncControls();
+    render();
+    updateBadge();
+  });
   els.showAll.addEventListener("click", () => {
     expanded = true;
     render();
@@ -451,11 +532,56 @@ export function createCatalog(data) {
     selectedId = null;
     const trigger = lastTrigger;
     lastTrigger = null;
+    if (suppressRestore) {
+      suppressRestore = false;
+      return;
+    }
     requestAnimationFrame(() => focusTrigger(trigger));
   });
   els.dossier.addEventListener("click", (event) => {
     if (event.target === els.dossier) closeDossier({ restoreFocus: true });
   });
+
+  els.dossierBody.addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-standard]");
+    if (!chip) return;
+    suppressRestore = true;
+    closeDossier();
+    Object.assign(state, DEFAULT_FILTERS, { standard: chip.dataset.standard });
+    expanded = false;
+    syncControls();
+    render();
+    updateBadge();
+    focusMap();
+  });
+
+  if (els.share) {
+    els.share.addEventListener("click", async () => {
+      if (!selectedId) return;
+      const url = `${location.origin}${caseUrl(selectedId)}`;
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(url);
+        copied = true;
+      } catch (_) {
+        const temp = el("textarea", { "aria-hidden": "true" });
+        temp.value = url;
+        temp.style.position = "fixed";
+        temp.style.opacity = "0";
+        document.body.append(temp);
+        temp.select();
+        try { copied = document.execCommand("copy"); } catch (_) { copied = false; }
+        temp.remove();
+      }
+      els.share.textContent = copied ? "Ссылка скопирована" : "Ссылка на кейс";
+      els.shareStatus.textContent = copied ? "Скопировано" : url;
+      clearTimeout(shareTimer);
+      shareTimer = setTimeout(() => {
+        els.share.textContent = "Ссылка на кейс";
+        els.shareStatus.textContent = "";
+      }, 2600);
+    });
+  }
 
   if (els.error) els.error.hidden = true;
   renderFilters();
