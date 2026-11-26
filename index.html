@@ -58,11 +58,14 @@
           <p class="hero__eyebrow">Живой атлас · интерактивная карта</p>
           <h1 id="hero-title">Одно ESG-событие меняет три отчёта.</h1>
           <p class="hero__lede" id="hero-lede">12 кейсов показывают путь от экологического, социального или управленческого сигнала до баланса, ОФР и ОДДС.</p>
-          <a class="btn btn--signal" href="#source">Пойти по следу</a>
+          <div class="hero__actions">
+            <a class="btn btn--signal" href="#source">Пойти по следу</a>
+            <a class="btn btn--ghost" href="#quiz">Проверить знания</a>
+          </div>
           <ul class="hero__stats" id="hero-stats" aria-label="Объём материала">
             <li><b>12</b><span>кейсов</span></li>
             <li><b>4</b><span>моста</span></li>
-            <li><b>5</b><span>проверок</span></li>
+            <li><b>5</b><span>вопросов</span></li>
           </ul>
         </div>
 
@@ -149,7 +152,7 @@
           <aside class="map-stage" aria-label="Сцена с линзой">
             <div class="map-stage__glow" aria-hidden="true"></div>
             <div class="stage-beam" aria-hidden="true"></div>
-            <img class="map-stage__paper" src="assets/report-sheet.svg" alt="" width="640" height="720">
+            <img class="map-stage__paper" src="assets/report-sheet.svg" alt="" width="1400" height="933">
             <div class="stage-radar" aria-hidden="true">
               <span class="stage-radar__sweep"></span>
               <span class="stage-radar__blip stage-radar__blip--e"></span>
@@ -164,7 +167,7 @@
                 <circle class="lupa__glint" cx="145" cy="145" r="9"/>
               </svg>
             </div>
-            <p class="map-stage__title" id="stage-title">Выберите след</p>
+            <p class="map-stage__title" id="stage-title" aria-live="polite">Выберите след</p>
             <div class="map-stage__reports" aria-hidden="true">
               <span data-stage-report="balance">Баланс</span>
               <span data-stage-report="income">ОФР</span>
@@ -185,11 +188,13 @@
               <button class="btn btn--ghost btn--small" id="catalog-reset" type="button">Сбросить</button>
             </div>
 
+            <p class="filter-legend" id="link-legend"></p>
+
             <div class="filters-panel" id="filters-panel">
-              <div class="filter-group" data-filter="category"><p>ESG</p></div>
-              <div class="filter-group" data-filter="mechanism"><p>Механизм</p></div>
-              <div class="filter-group" data-filter="form"><p>Отчётность</p></div>
-              <div class="filter-group" data-filter="link"><p>Связь</p></div>
+              <fieldset class="filter-group" data-filter="category"><legend>ESG</legend></fieldset>
+              <fieldset class="filter-group" data-filter="mechanism"><legend>Механизм</legend></fieldset>
+              <fieldset class="filter-group" data-filter="form"><legend>Отчётность</legend></fieldset>
+              <fieldset class="filter-group" data-filter="link"><legend>Связь</legend></fieldset>
             </div>
 
             <div class="case-list" id="catalog-results"></div>
@@ -219,7 +224,7 @@
           </div>
           <div class="quiz-mascot" aria-hidden="true">
             <span class="quiz-mascot__halo"></span>
-            <img src="assets/avatar/lupa.webp" alt="" width="240" height="240">
+            <img src="assets/avatar/lupa.webp" alt="" width="600" height="600">
             <span class="quiz-mascot__beam"></span>
           </div>
         </div>
@@ -235,6 +240,7 @@
             <h2 id="methodology-title">Печать достоверности</h2>
             <p>Учебная карта. Стандарты — по первоисточникам.</p>
           </div>
+          <p class="method-warning" id="method-warning"></p>
         </div>
         <details class="disclosure">
           <summary>Как устроена карта и где границы примера</summary>

@@ -19,11 +19,9 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 
-function rangeText(score) {
-  if (score === 5) return "Отлично: все пять связей разобраны верно.";
-  if (score === 4) return "Одна ошибка: изучите разбор и вернитесь к этому механизму.";
-  if (score === 3) return "Половина верных: повторите отдельные механизмы по разбору ниже.";
-  return "Вернитесь к четырём мостам: базовые механизмы стоит разобрать заново.";
+function rangeText(score, data) {
+  const ranges = data.quizResult || {};
+  return ranges[String(score)] || ranges.low || "";
 }
 
 export function createQuiz(data) {
@@ -100,7 +98,7 @@ export function createQuiz(data) {
     const label = el(
       "label",
       { for: inputId },
-      el("span", { class: "choice-letter", text: CHOICE_LETTERS[CHOICE_LETTERS.indexOf(choice.id)] || choice.id }),
+      el("span", { class: "choice-letter", text: CHOICE_LETTERS[question.choices.indexOf(choice)] || choice.id }),
       el("span", { text: choice.label }),
       markText ? el("span", { class: "choice-mark", text: markText }) : null
     );
@@ -180,8 +178,6 @@ export function createQuiz(data) {
       form.append(el("div", { class: "quiz-actions" }, next));
     }
 
-    wrapper.append(form);
-
     if (answered) {
       const answer = state.answers[state.index];
       const isCorrect = Boolean(answer?.isCorrect);
@@ -193,6 +189,7 @@ export function createQuiz(data) {
           class: `verdict ${isCorrect ? "verdict--correct" : "verdict--wrong"}`,
           tabindex: "-1",
           id: "quiz-verdict",
+          "aria-live": "polite",
         },
         el("span", { class: "verdict-mark", "aria-hidden": "true", text: isCorrect ? "✓" : "×" }),
         el("span", { text: isCorrect ? "Верно" : "Неверно" })
@@ -207,6 +204,7 @@ export function createQuiz(data) {
       wrapper.append(feedback);
     }
 
+    wrapper.append(form);
     return { wrapper, heading };
   }
 
@@ -225,7 +223,7 @@ export function createQuiz(data) {
       ` из ${quiz.length}`
     );
 
-    wrapper.append(heading, el("p", { class: "result-text", text: rangeText(score) }));
+    wrapper.append(heading, el("p", { class: "result-text", text: rangeText(score, data) }));
 
     const mistakes = [];
     state.answers.forEach((answer, index) => {

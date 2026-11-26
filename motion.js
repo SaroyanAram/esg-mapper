@@ -20,6 +20,9 @@ export function initMotion() {
     };
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(update).observe(document.body);
+    }
     update();
   }
 

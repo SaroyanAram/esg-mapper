@@ -10,7 +10,12 @@ const DATA_URL = "data/site-content.json";
 
 const dom = {
   stats: document.getElementById("hero-stats"),
+  headline: document.getElementById("hero-title"),
+  eyebrow: document.querySelector(".hero__eyebrow"),
+  actions: document.querySelector(".hero__actions"),
   lede: document.getElementById("hero-lede"),
+  legend: document.getElementById("link-legend"),
+  warning: document.getElementById("method-warning"),
   sourceGrid: document.getElementById("source-grid"),
   bridges: document.getElementById("bridges-list"),
   bridgeNote: document.getElementById("bridge-note"),
@@ -26,40 +31,7 @@ const dom = {
   siteNav: document.getElementById("site-nav"),
 };
 
-const SOURCE_CARDS = [
-  { key: "E", word: "Экология", caption: "Выбросы, платежи, активы", visual: "На кадре: фильтр и выбросы" },
-  { key: "S", word: "Социальное", caption: "Обучение, травмы, персонал", visual: "На кадре: обучение команды" },
-  { key: "G", word: "Управление", caption: "Правление, вознаграждение, раскрытие", visual: "На кадре: стол правления" },
-];
-
-const BRIDGE_SHORT = {
-  expense: "Нет актива — расход периода.",
-  capitalization: "Есть критерии признания — актив и амортизация.",
-  provision: "Обязанность, вероятный отток, надёжная оценка.",
-  impairment: "Балансовая выше возмещаемой — убыток.",
-};
-
-const BRIDGE_TAG = {
-  expense: "затраты → расход",
-  capitalization: "затраты → актив",
-  provision: "обязанность → обязательство",
-  impairment: "20 − 12 = убыток",
-};
-
-const BRIDGE_STANDARD = {
-  expense: "IAS 38.69(b)",
-  capitalization: "IAS 16",
-  provision: "IAS 37",
-  impairment: "IAS 36",
-};
-
-const SOURCE_SHORT = {
-  "ifrs-accounting": "IFRS учёт",
-  "ifrs-sustainability": "IFRS устойчивость",
-  icma: "ICMA",
-  gri: "GRI",
-  ghg: "GHG Protocol",
-};
+/* Все пользовательские формулировки приходят из site-content.json. */
 
 let catalog = null;
 let quiz = null;
@@ -85,11 +57,16 @@ function validate(data) {
   const fail = (message) => { throw new Error(`Некорректные данные: ${message}`); };
   if (!data || typeof data !== "object") fail("пустой ответ");
   if (!data.intro || typeof data.intro.title !== "string") fail("intro");
+  if (typeof data.intro.headline !== "string" || typeof data.intro.lede !== "string") fail("intro.headline/lede");
+  if (!Array.isArray(data.intro.statsLabels) || data.intro.statsLabels.length < 3) fail("intro.statsLabels");
+  if (!Array.isArray(data.sourceCards) || data.sourceCards.length !== 3) fail("sourceCards");
   if (!Array.isArray(data.bridges) || !data.bridges.length) fail("bridges");
+  if (data.bridges.some((bridge) => !bridge.short || !bridge.tag || !bridge.standard)) fail("bridges short/tag/standard");
   if (!Array.isArray(data.cases) || !data.cases.length) fail("cases");
   if (!Array.isArray(data.quiz) || !data.quiz.length) fail("quiz");
+  if (!data.quizResult || !data.quizResult.low) fail("quizResult");
   if (!data.methodology || typeof data.methodology.body !== "string") fail("methodology");
-  if (!Array.isArray(data.sources)) fail("sources");
+  if (!Array.isArray(data.sources) || data.sources.some((source) => !source.short)) fail("sources");
   for (const item of data.cases) {
     if (!item.id || !item.title) fail("идентификатор кейса");
     if (!Array.isArray(item.categories) || !Array.isArray(item.links)) fail(`теги кейса ${item.id}`);
@@ -104,22 +81,33 @@ function validate(data) {
 }
 
 function renderStats(data) {
-  if (!dom.stats) return;
   const values = [data.cases.length, data.bridges.length, data.quiz.length];
-  dom.stats.querySelectorAll("b").forEach((node, index) => { node.textContent = String(values[index]); });
-  if (dom.lede) {
-    dom.lede.textContent = `${data.cases.length} кейсов показывают путь от экологического, социального или управленческого сигнала до баланса, ОФР и ОДДС.`;
+  if (dom.headline) dom.headline.textContent = data.intro.headline;
+  if (dom.eyebrow) dom.eyebrow.textContent = data.intro.eyebrow;
+  if (dom.lede) dom.lede.textContent = data.intro.lede.replace("{count}", String(values[0]));
+  if (dom.actions) {
+    const links = dom.actions.querySelectorAll("a");
+    if (links[0]) links[0].textContent = data.intro.primaryAction;
+    if (links[1]) links[1].textContent = data.intro.secondaryAction;
   }
+  if (dom.legend) dom.legend.textContent = data.intro.legend || "";
+  if (dom.warning) dom.warning.textContent = data.intro.warning || "";
+  const description = document.querySelector('meta[name="description"]');
+  if (description && data.intro.description) description.setAttribute("content", data.intro.description);
+  if (!dom.stats) return;
+  dom.stats.querySelectorAll("b").forEach((node, index) => { node.textContent = String(values[index]); });
+  dom.stats.querySelectorAll("span").forEach((node, index) => {
+    if (data.intro.statsLabels[index]) node.textContent = data.intro.statsLabels[index];
+  });
 }
 
-function renderSourceCards() {
+function renderSourceCards(data) {
   if (!dom.sourceGrid) return;
-  const cards = SOURCE_CARDS.map((card) => {
+  const cards = data.sourceCards.map((card) => {
     const button = el("button", {
       class: `source-card source-card--${card.key}`,
       type: "button",
       dataset: { category: card.key },
-      "aria-label": `Показать кейсы ${card.word}`,
     });
     button.append(
       el("span", { class: "source-card__scan", "aria-hidden": "true" }),
@@ -156,7 +144,7 @@ function renderBridges(data) {
       more.append(
         el("summary", {},
           el("span", { class: "bridge__more-label", text: "Правило учёта" }),
-          el("span", { class: "bridge__more-standard", text: BRIDGE_STANDARD[bridge.id] || "" }),
+          el("span", { class: "bridge__more-standard", text: bridge.standard || "" }),
           el("span", { class: "bridge__more-arrow", "aria-hidden": "true" })
         ),
         el("div", { class: "bridge__more-body" }, el("p", { text: bridge.body }))
@@ -174,13 +162,13 @@ function renderBridges(data) {
           alt: "",
         }),
         el("span", { class: "bridge__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
-        el("span", { class: "bridge__tag", "aria-hidden": "true", text: BRIDGE_TAG[bridge.id] || "" }),
+        el("span", { class: "bridge__tag", "aria-hidden": "true", text: bridge.tag || "" }),
         el("span", { class: "bridge__flow", "aria-hidden": "true" }, el("i", {}))
       );
       tile.append(
         media,
         el("h3", { text: bridge.title }),
-        el("p", { class: "bridge__short", text: BRIDGE_SHORT[bridge.id] || bridge.body }),
+        el("p", { class: "bridge__short", text: bridge.short || bridge.body }),
         more,
         button
       );
@@ -226,7 +214,7 @@ function renderSources(sources) {
       el(
         "a",
         { href: source.url, target: "_blank", rel: "noopener noreferrer" },
-        el("strong", { text: SOURCE_SHORT[source.id] || source.label }),
+        el("strong", { text: source.short || source.label }),
         el("span", { class: "ext-mark", "aria-hidden": "true", text: " ↗" }),
         el("span", { class: "visually-hidden", text: " (откроется в новой вкладке)" }),
         host ? el("span", { class: "source-url", text: host }) : null
@@ -248,10 +236,12 @@ function showError() {
   dom.sources.replaceChildren();
 }
 
-function closeMenu() {
+function closeMenu({ restoreFocus = false } = {}) {
   if (!dom.menuToggle || !dom.siteNav) return;
+  const hadFocus = dom.siteNav.contains(document.activeElement);
   dom.menuToggle.setAttribute("aria-expanded", "false");
   dom.siteNav.classList.remove("is-open");
+  if (restoreFocus && hadFocus) dom.menuToggle.focus();
 }
 
 function init(data) {
@@ -259,7 +249,7 @@ function init(data) {
   dom.error.hidden = true;
 
   renderStats(data);
-  renderSourceCards();
+  renderSourceCards(data);
   renderMethodology(data.methodology);
   renderSources(data.sources);
 
@@ -306,7 +296,7 @@ if (dom.menuToggle && dom.siteNav) {
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
-  closeMenu();
+  closeMenu({ restoreFocus: true });
   const panel = document.getElementById("filters-panel");
   const toggle = document.getElementById("filters-toggle");
   if (panel?.classList.contains("is-open")) {
@@ -321,6 +311,7 @@ document.addEventListener("click", (event) => {
   if (!trigger) return;
   event.preventDefault();
   closeMenu();
+  history.replaceState(null, "", "#catalog");
   if (catalog) catalog.openCase(trigger.dataset.openCase, trigger);
 });
 

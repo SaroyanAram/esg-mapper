@@ -143,13 +143,8 @@ function buildDossier(item, sourcesById) {
     ),
     dossierBlock("Учёт и условия", el("p", { text: item.accounting }))
   );
-  if (item.id === "03") {
-    main.append(
-      dossierBlock(
-        "Денежный поток",
-        el("p", { text: "Признание неденежное: при обесценении угольных активов денежного оттока нет." })
-      )
-    );
+  if (item.cashflowNote) {
+    main.append(dossierBlock("Денежный поток", el("p", { text: item.cashflowNote })));
   }
   if (item.example) main.append(dossierBlock("Пример", el("p", { text: item.example })));
 
@@ -190,7 +185,6 @@ function buildRow(item) {
     class: "case-row",
     type: "button",
     dataset: { openCase: item.id },
-    "aria-label": `Открыть досье: ${item.title}`,
   });
   const esg = el("span", { class: "case-row__esg", "aria-hidden": "true" });
   for (const key of item.categories || []) esg.append(el("i", { dataset: { esg: key }, text: key }));
@@ -262,7 +256,8 @@ export function createCatalog(data) {
       const labelNode = el("label", { for: inputId }, letter, el("span", { text: label }));
       chips.append(el("div", { class: `chip chip--${group === "category" ? value : ""}` }, input, labelNode));
     }
-    container.replaceChildren(el("p", { text: container.querySelector("p")?.textContent || "" }), chips);
+    const legend = container.querySelector("legend") || el("legend", { text: "" });
+    container.replaceChildren(legend, chips);
   }
 
   function renderFilters() {
@@ -320,14 +315,22 @@ export function createCatalog(data) {
     els.dossierTitle.focus({ preventScroll: true });
   }
 
+  function focusTrigger(trigger) {
+    if (!trigger?.isConnected) return;
+    const rect = trigger.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) trigger.scrollIntoView({ block: "center" });
+    trigger.focus({ preventScroll: true });
+  }
+
   function closeDossier({ restoreFocus = false } = {}) {
     const wasOpen = els.dossier.open;
     if (wasOpen) els.dossier.close();
     selectedId = null;
+    setStage(null);
     if (!wasOpen && restoreFocus && lastTrigger?.isConnected) {
       const trigger = lastTrigger;
       lastTrigger = null;
-      requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
+      requestAnimationFrame(() => focusTrigger(trigger));
     }
   }
 
@@ -386,7 +389,9 @@ export function createCatalog(data) {
     expanded = false;
     syncControls();
     render();
-    lastTrigger = document.querySelector(`[data-open-case="${id}"]`) || trigger;
+    const freshRow = document.querySelector(`.case-list [data-open-case="${id}"]`);
+    const sameRow = trigger?.classList?.contains("case-row") && trigger.isConnected;
+    lastTrigger = sameRow ? trigger : freshRow || trigger;
     openDossier(item);
     els.title.scrollIntoView({ block: "start" });
   }
@@ -429,9 +434,11 @@ export function createCatalog(data) {
   });
 
   els.toggle.addEventListener("click", () => {
+    if (getComputedStyle(els.panel).display !== "none") return;
     const open = !els.panel.classList.contains("is-open");
     els.panel.classList.toggle("is-open", open);
     els.toggle.setAttribute("aria-expanded", String(open));
+    if (open) els.panel.querySelector("input")?.focus();
   });
 
   els.dossierClose.addEventListener("click", () => closeDossier({ restoreFocus: true }));
@@ -439,9 +446,7 @@ export function createCatalog(data) {
     selectedId = null;
     const trigger = lastTrigger;
     lastTrigger = null;
-    requestAnimationFrame(() => {
-      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
-    });
+    requestAnimationFrame(() => focusTrigger(trigger));
   });
   els.dossier.addEventListener("click", (event) => {
     if (event.target === els.dossier) closeDossier({ restoreFocus: true });

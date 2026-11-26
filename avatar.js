@@ -2,6 +2,14 @@
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+if (reduceMotion) {
+  const earlyVideo = document.querySelector(".hero__motion");
+  if (earlyVideo) {
+    earlyVideo.removeAttribute("autoplay");
+    earlyVideo.pause();
+  }
+}
+
 const FILES = {
   hero: "assets/avatar/hero-backdrop.webp",
   lupa: reduceMotion ? "assets/avatar/lupa.webp" : "assets/avatar/lupa-pulse.webp",
@@ -45,7 +53,7 @@ export async function initAvatar() {
   }
 
   const video = document.querySelector(".hero__motion");
-  if (flags.motion === false) {
+  if (flags.motion === false || reduceMotion) {
     if (video) {
       video.pause();
       video.querySelectorAll("source").forEach((source) => source.remove());
