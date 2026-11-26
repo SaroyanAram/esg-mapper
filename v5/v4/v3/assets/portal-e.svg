@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1F2A"/><stop offset="1" stop-color="#123240"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#34D399" stop-opacity="0.05"/><stop offset="1" stop-color="#34D399" stop-opacity="0.75"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <g opacity="0.55" fill="none" stroke="#3E6975" stroke-width="1"><path d="M0 440H960M0 470H960M0 500H960"/></g>
+  <g transform="translate(150 120)">
+    <rect x="0" y="140" width="120" height="280" rx="6" fill="#0E2A35" stroke="#3E6975"/>
+    <rect x="140" y="190" width="90" height="230" rx="6" fill="#0E2A35" stroke="#3E6975"/>
+    <path d="M40 140V70c0-24 22-42 48-42s48 18 48 42v70" fill="#0E2A35" stroke="#3E6975" stroke-width="3"/>
+    <g fill="none" stroke="url(#glow)" stroke-width="4" opacity="0.9">
+      <path d="M260 330C360 300 420 250 520 270S650 340 760 240"/>
+      <path d="M260 370C380 350 430 300 540 320S680 390 790 290"/>
+      <path d="M260 410C400 390 450 340 560 360S700 430 820 330"/>
+    </g>
+    <g fill="#34D399" opacity="0.85"><circle cx="760" cy="240" r="7"/><circle cx="790" cy="290" r="7"/><circle cx="820" cy="330" r="7"/></g>
+  </g>
+</svg>

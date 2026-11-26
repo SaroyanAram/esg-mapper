@@ -1,0 +1,29 @@
+# Кадры сцены «Живой атлас»
+
+Восемь кадров v3 отрисованы в Blender из `site/asset-source/lupa-atlas.blend`; сцена и скрипт сборки - `site/asset-source/build_lupa.py`. Исходные PNG лежат в `site/asset-source/lupa-renders/`, здесь - WebP для сайта.
+
+Кадры декоративные: текст, подписи, стандарты и данные остаются в HTML и `data/site-content.json`. В 3D-сцене нет текста и водяных знаков.
+
+| Ключ | Файл | Где появляется |
+|---|---|---|
+| `hero` | `hero-backdrop.webp` | Фон первого экрана |
+| `lupa` | `lupa-pulse.webp` | Люпа в первом акте и на карте следов, анимированный WebP с альфой; `lupa.webp` - статичный фолбэк |
+| `e` | `portal-e.webp` | Фон карточки источника E |
+| `s` | `portal-s.webp` | Фон карточки источника S |
+| `g` | `portal-g.webp` | Фон карточки источника G |
+| `report` | `report-sheet.webp` | Лист отчётности на липкой сцене каталога |
+| `result` | `result-map.webp` | Фон карточки результата квиза |
+| `outro` | `outro.webp` | Фон финального блока с источниками |
+
+## v4 — движение
+
+- `atlas-loop.webm` и `atlas-loop.mp4`: зацикленный ролик 1280×720, 24 fps, 3 секунды; фон первого экрана поверх `hero-backdrop.webp`, источники - `build_atlas_motion.py`.
+- `lupa-pulse.webp`: 25 кадров 500×500 с альфой, пульсирующая Люпа; источник - `build_lupa_pulse.py`.
+
+## v5 — Люпа-прибор
+
+`lupa.webp`, `lupa-pulse.webp`, `atlas-loop.webm`/`.mp4`, `hero-backdrop.webp` и `portal-*.webp` перерисованы из одной сцены `build_lupa_character.py`: один светящийся глаз, калибровочные насечки, латунная база и шарф из трёх нитей E/S/G. Четыре кадра мостов лежат рядом в `assets/bridge-*.webp` (640×360) и показывают тот же прибор в светлой оптике. Скрипты v4 остаются в `site/asset-source` как архив.
+
+При `prefers-reduced-motion: reduce` или выключенном флаге `motion` в `manifest.json` видео и анимированная Люпа заменяются статичными `hero-backdrop.webp` и `lupa.webp`.
+
+Флаги включения лежат в `manifest.json` и запрашиваются без кэша. Прежние тёмные кадры GPT сохранены в `Материалы/backups/gpt-avatar-2026-11-26`, полные версии v2–v4 - в `site/dist/v2/`, `/v3/`, `/v4/` и в `Материалы/backups/site-v{2,3,4}-2026-11-26`. Новые тёмные кадры GPT из `гпт картинки выход` не используются; промпты под светлую серию - в `Материалы/Промпты для GPT — светлый атлас v4.md`.
