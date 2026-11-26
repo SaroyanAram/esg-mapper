@@ -1811,7 +1811,7 @@ a { color: var(--sun-ink); text-decoration-thickness: 1px; text-underline-offset
   bottom: 14px;
   border-left: 1px dashed rgba(157, 96, 18, .55);
 }
-.guide__head { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.guide__head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 8px; min-width: 0; }
 .guide__name { font: 500 1.15rem/1.2 "Playfair", Georgia, serif; color: var(--ink); }
 .guide__role { flex: 1; color: var(--muted); font-size: .72rem; }
 .guide__off {
@@ -1824,6 +1824,16 @@ a { color: var(--sun-ink); text-decoration-thickness: 1px; text-underline-offset
   text-underline-offset: 3px;
   cursor: pointer;
 }
+.guide__voice {
+  padding: 2px 8px;
+  border: 1px solid rgba(157, 96, 18, .45);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sun-ink);
+  font-size: .7rem;
+  cursor: pointer;
+}
+.guide__voice[aria-pressed="true"] { background: rgba(226, 160, 62, .18); border-color: var(--sun); }
 .guide__title { margin: 9px 0 3px; font: 500 1.04rem/1.3 "Playfair", Georgia, serif; }
 .guide__text { color: var(--muted); font-size: .84rem; line-height: 1.5; }
 .guide__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 11px; }

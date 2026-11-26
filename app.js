@@ -88,7 +88,7 @@ function validate(data) {
   if (!Array.isArray(data.quiz) || !data.quiz.length) fail("quiz");
   if (!data.quizResult || !data.quizResult.low) fail("quizResult");
   if (!data.guide || !Array.isArray(data.guide.steps) || !data.guide.steps.length) fail("guide");
-  if (!data.guide.name || !data.guide.off || !data.guide.on || !data.guide.next || !data.guide.progress) fail("guide controls");
+  if (!data.guide.name || !data.guide.off || !data.guide.on || !data.guide.next || !data.guide.progress || !data.guide.voiceOn || !data.guide.voiceOff) fail("guide controls");
   if (data.guide.steps.some((step) => !step.id || !step.title || !step.text || !step.target)) fail("guide.steps");
   if (data.guide.steps.some((step) => !document.getElementById(step.id) || !document.getElementById(step.target))) fail("guide anchors");
   if (!data.methodology || typeof data.methodology.body !== "string") fail("methodology");
