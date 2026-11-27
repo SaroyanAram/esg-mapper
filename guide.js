@@ -1,7 +1,8 @@
-/* Люпа-проводник: реплики привязаны к разделам, маскот движется вместе с чтением. */
+/* Люпа-проводник: одна закреплённая карточка, ручное перемещение, без перелётов по странице. */
 
 const STORAGE_KEY = "esg-mapper-guide";
 const VOICE_KEY = "esg-mapper-guide-voice";
+const POSITION_KEY = "esg-mapper-guide-position";
 let started = false;
 
 function node(tag, attrs = {}, ...children) {
@@ -21,6 +22,21 @@ function node(tag, attrs = {}, ...children) {
   return item;
 }
 
+function icon(paths, className) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", className);
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  for (const item of paths) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", typeof item === "string" ? item : item.d);
+    if (typeof item !== "string" && item.class) path.setAttribute("class", item.class);
+    svg.append(path);
+  }
+  return svg;
+}
+
 function readPreference(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -38,49 +54,83 @@ export function initGuide(data) {
   const steps = config.steps;
   const sections = steps.map((step) => document.getElementById(step.id));
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const compact = matchMedia("(max-width: 979px)");
 
-  const figure = node("div", { class: "guide__figure", "aria-hidden": "true" },
-    node("img", { src: "assets/avatar/lupa.webp", alt: "", width: 84, height: 84, decoding: "async" }),
-    node("span", { class: "guide__spark" })
-  );
   const title = node("h3", { class: "guide__title", id: "guide-title" });
   const text = node("p", { class: "guide__text", id: "guide-text", "aria-live": "polite" });
   const dots = node("ol", { class: "guide__dots", id: "guide-dots", "aria-label": config.progress || "Маршрут" });
   const next = node("button", { class: "guide__next", id: "guide-next", type: "button" });
-  const off = node("button", { class: "guide__off", id: "guide-off", type: "button", text: config.off || "Выключить" });
+
+  const voiceLabel = node("span", { class: "visually-hidden" });
   const voice = node("button", {
     class: "guide__voice", id: "guide-voice", type: "button", "aria-pressed": "false",
-  });
+    "aria-label": config.voiceOn || "Включить озвучку",
+    title: config.voiceOn || "Включить озвучку",
+  },
+    icon([
+      { d: "M4 9h3.5L13 4.8v14.4L7.5 15H4z", class: "guide__voice-body" },
+      { d: "M16 9.2c1.1 1.6 1.1 4 0 5.6", class: "guide__voice-wave" },
+      { d: "M18.6 6.8c2.2 2.8 2.2 7.6 0 10.4", class: "guide__voice-wave" },
+      { d: "M3.2 3.2 20.8 20.8", class: "guide__voice-slash" },
+    ], "guide__icon guide__icon--voice"),
+    voiceLabel
+  );
+  const home = node("button", {
+    class: "guide__home", id: "guide-home", type: "button",
+    "aria-label": "В угол", title: "Вернуть Люпу в правый нижний угол",
+  },
+    icon([
+      "M14 5h5v5",
+      "M19 5l-7 7",
+      "M10 19H5v-5",
+      "M5 19l7-7",
+    ], "guide__icon"),
+    node("span", { class: "visually-hidden", text: "В угол" })
+  );
+  const off = node("button", {
+    class: "guide__off", id: "guide-off", type: "button",
+    "aria-label": config.off || "Выключить", title: config.off || "Выключить",
+  },
+    icon(["M6 6l12 12", "M18 6 6 18"], "guide__icon"),
+    node("span", { class: "visually-hidden", text: config.off || "Выключить" })
+  );
+  const handle = node("div", {
+    class: "guide__handle", id: "guide-handle", tabindex: "0", role: "button",
+    "aria-label": "Перетащите Люпу или перемещайте стрелками",
+    title: "Перетащите Люпу",
+  },
+    node("img", { class: "guide__avatar", src: "assets/avatar/lupa.webp", alt: "", width: 52, height: 52, decoding: "async" }),
+    node("span", { class: "guide__grip", "aria-hidden": "true" },
+      node("i", {}), node("i", {}), node("i", {}))
+  );
   const audio = node("audio", { id: "guide-audio", preload: "metadata" });
   const card = node("div", {
     class: "guide__card", id: "guide-card", role: "group",
     "aria-label": `${config.name || "Люпа"}. ${config.role || ""}`.trim(),
   },
-    node("div", { class: "guide__head" },
-      node("span", { class: "guide__name", text: config.name || "Люпа" }),
-      node("span", { class: "guide__role", text: config.role || "" }),
-      voice, off
+    node("div", { class: "guide__bubble" },
+      node("div", { class: "guide__tools" }, voice, home, off),
+      title, text,
+      node("div", { class: "guide__foot" }, dots, next)
     ),
-    title, text,
-    node("div", { class: "guide__foot" }, dots, next),
+    handle,
     audio
   );
-  const root = node("div", { class: "guide", id: "guide", hidden: true }, figure, card);
+  const root = node("div", { class: "guide", id: "guide", hidden: true }, card);
   const launcher = node("button", {
     class: "guide-launcher", id: "guide-launcher", type: "button", hidden: true,
+    "aria-label": config.on || "Позвать Люпу", title: config.on || "Позвать Люпу",
   },
-    node("span", { class: "guide-launcher__dot", "aria-hidden": "true" }),
-    node("span", { text: config.on || "Позвать Люпу" })
+    node("img", { class: "guide-launcher__face", src: "assets/avatar/lupa.webp", alt: "", width: 34, height: 34 }),
+    node("span", { class: "visually-hidden", text: config.on || "Позвать Люпу" })
   );
 
   document.body.append(root, launcher);
-  steps.forEach((step, index) => {
+  steps.forEach((step, position) => {
     const dot = node("button", {
-      class: "guide__dot", type: "button", "aria-label": step.title || `Шаг ${index + 1}`,
-      dataset: { guideStep: String(index) },
+      class: "guide__dot", type: "button", "aria-label": step.title || `Шаг ${position + 1}`,
+      dataset: { guideStep: String(position) },
     });
-    dot.addEventListener("click", () => goTo(index));
+    dot.addEventListener("click", () => goTo(step.id));
     dots.append(node("li", {}, dot));
   });
 
@@ -88,8 +138,8 @@ export function initGuide(data) {
   let voiceEnabled = readPreference(VOICE_KEY) === "on";
   let suspended = false;
   let index = -1;
-  let frame = 0;
-  let hopTimer = 0;
+  let scrollLockUntil = 0;
+  let drag = null;
 
   function voiceFile(position) {
     return `assets/voice/guide-${String(position).padStart(2, "0")}.mp3`;
@@ -102,7 +152,9 @@ export function initGuide(data) {
 
   function syncVoiceButton() {
     const label = voiceEnabled ? config.voiceOff || "Выключить звук" : config.voiceOn || "Включить озвучку";
-    voice.textContent = label;
+    voiceLabel.textContent = label;
+    voice.setAttribute("aria-label", label);
+    voice.setAttribute("title", label);
     voice.setAttribute("aria-pressed", String(voiceEnabled));
   }
 
@@ -133,28 +185,6 @@ export function initGuide(data) {
     return found;
   }
 
-  function place() {
-    if (!enabled || suspended || compact.matches) return;
-    const active = sections[index] || sections[0];
-    if (!active) return;
-    const bounds = active.getBoundingClientRect();
-    const shell = active.querySelector(".shell")?.getBoundingClientRect() || bounds;
-    const figureSize = 84;
-    const cardWidth = Math.min(318, innerWidth - 28);
-    const lane = index % 2 === 0 ? 0.88 : 0.12;
-    const x = Math.min(Math.max(shell.left + shell.width * lane - figureSize / 2, 12), innerWidth - figureSize - 12);
-    const y = Math.min(Math.max(bounds.top + Math.min(150, Math.max(80, bounds.height * 0.25)), 108), innerHeight - figureSize - 128);
-    let cardLeft = x - cardWidth - 18;
-    if (cardLeft < 14) cardLeft = x + figureSize + 12;
-    cardLeft = Math.min(Math.max(cardLeft, 14), Math.max(14, innerWidth - cardWidth - 14));
-    const cardTop = Math.min(Math.max(y - 24, 96), Math.max(96, innerHeight - 232));
-
-    root.style.setProperty("--guide-x", `${Math.round(x)}px`);
-    root.style.setProperty("--guide-y", `${Math.round(y)}px`);
-    root.style.setProperty("--guide-card-x", `${Math.round(cardLeft)}px`);
-    root.style.setProperty("--guide-card-y", `${Math.round(cardTop)}px`);
-  }
-
   function render(position, { force = false } = {}) {
     const nextIndex = Math.min(Math.max(position, 0), steps.length - 1);
     const changed = nextIndex !== index;
@@ -165,40 +195,103 @@ export function initGuide(data) {
     title.textContent = step.title || "";
     text.textContent = step.text || "";
     next.textContent = step.action || config.next || "Дальше";
-    next.dataset.target = step.target || "";
     [...dots.children].forEach((item, dotIndex) => {
       const button = item.firstElementChild;
       button.classList.toggle("is-active", dotIndex === index);
       if (dotIndex === index) button.setAttribute("aria-current", "step");
       else button.removeAttribute("aria-current");
     });
-    if ((changed || force) && !reduced.matches) {
-      root.classList.remove("is-hopping");
-      void figure.offsetWidth;
-      root.classList.add("is-hopping");
-      clearTimeout(hopTimer);
-      hopTimer = setTimeout(() => root.classList.remove("is-hopping"), 700);
-    }
-    place();
     if (wasReady && (changed || force)) speak(index);
   }
 
-  function goTo(position) {
-    const target = document.getElementById(steps[position]?.target);
+  function goTo(sectionId, { lock = true } = {}) {
+    const target = document.getElementById(sectionId);
     if (!target) return;
+    const position = steps.findIndex((step) => step.id === sectionId);
+    if (position >= 0) render(position);
+    if (lock) scrollLockUntil = performance.now() + (reduced.matches ? 60 : 900);
     target.scrollIntoView({ behavior: reduced.matches ? "auto" : "smooth", block: "start" });
   }
 
   function onScroll() {
-    if (frame) return;
-    frame = requestAnimationFrame(() => {
-      frame = 0;
-      if (!enabled || suspended) return;
-      render(currentIndex());
-    });
+    if (!enabled || suspended || performance.now() < scrollLockUntil) return;
+    render(currentIndex());
   }
 
-  next.addEventListener("click", () => goTo(index));
+  /* Перетаскивание карточки за шапку; стрелки работают без мыши. */
+  function clampPosition(left, top) {
+    const rect = card.getBoundingClientRect();
+    return {
+      left: Math.min(Math.max(left, 8), Math.max(8, innerWidth - rect.width - 8)),
+      top: Math.min(Math.max(top, 68), Math.max(68, innerHeight - rect.height - 8)),
+    };
+  }
+
+  function setPosition(left, top, save = false) {
+    const safe = clampPosition(left, top);
+    card.dataset.dragged = "true";
+    card.style.left = `${Math.round(safe.left)}px`;
+    card.style.top = `${Math.round(safe.top)}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+    if (save) writePreference(POSITION_KEY, JSON.stringify(safe));
+  }
+
+  function resetPosition() {
+    delete card.dataset.dragged;
+    card.style.left = "";
+    card.style.top = "";
+    card.style.right = "";
+    card.style.bottom = "";
+    writePreference(POSITION_KEY, "default");
+  }
+
+  function restorePosition() {
+    let stored = null;
+    try { stored = JSON.parse(readPreference(POSITION_KEY) || "null"); } catch { stored = null; }
+    if (stored && Number.isFinite(stored.left) && Number.isFinite(stored.top)) {
+      setPosition(stored.left, stored.top);
+    }
+  }
+
+  handle.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button")) return;
+    const rect = card.getBoundingClientRect();
+    drag = { id: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
+    handle.setPointerCapture(event.pointerId);
+    card.classList.add("is-dragging");
+  });
+  handle.addEventListener("pointermove", (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    setPosition(event.clientX - drag.dx, event.clientY - drag.dy);
+  });
+  const endDrag = (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const rect = card.getBoundingClientRect();
+    drag = null;
+    card.classList.remove("is-dragging");
+    setPosition(rect.left, rect.top, true);
+  };
+  handle.addEventListener("pointerup", endDrag);
+  handle.addEventListener("pointercancel", endDrag);
+  handle.addEventListener("keydown", (event) => {
+    const rect = card.getBoundingClientRect();
+    const step = event.shiftKey ? 32 : 12;
+    const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    if (moves[event.key]) {
+      event.preventDefault();
+      setPosition(rect.left + moves[event.key][0], rect.top + moves[event.key][1], true);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      resetPosition();
+    }
+  });
+  home.addEventListener("click", resetPosition);
+
+  next.addEventListener("click", () => {
+    const forward = (index + 1) % steps.length;
+    goTo(steps[forward].id);
+  });
   voice.addEventListener("click", () => {
     voiceEnabled = !voiceEnabled;
     writePreference(VOICE_KEY, voiceEnabled ? "on" : "off");
@@ -220,21 +313,30 @@ export function initGuide(data) {
     off.focus({ preventScroll: true });
   });
   addEventListener("scroll", onScroll, { passive: true });
-  addEventListener("resize", () => place(), { passive: true });
-  compact.addEventListener("change", () => place());
+  /* Резервный опрос: instant-прокрутка в некоторых браузерах не шлёт scroll. */
+  setInterval(() => {
+    if (!enabled || suspended || performance.now() < scrollLockUntil) return;
+    render(currentIndex());
+  }, 100);
+  addEventListener("resize", () => {
+    if (card.dataset.dragged) {
+      const rect = card.getBoundingClientRect();
+      setPosition(rect.left, rect.top, true);
+    }
+  }, { passive: true });
 
   const dialog = document.getElementById("case-dossier");
   if (dialog) {
     const sync = () => {
       suspended = dialog.open;
       applyState();
-      if (!suspended) place();
     };
     dialog.addEventListener("toggle", sync);
     dialog.addEventListener("close", sync);
   }
 
   syncVoiceButton();
+  restorePosition();
   applyState();
   render(currentIndex());
   window.__esgGuide = {
@@ -244,6 +346,7 @@ export function initGuide(data) {
       target: steps[index]?.target || "",
       text: text.textContent,
       voiceLabel: voice.textContent,
+      position: card.dataset.dragged === "true" ? "dragged" : "corner",
       audio: {
         src: audio.getAttribute("src") || "",
         paused: audio.paused,

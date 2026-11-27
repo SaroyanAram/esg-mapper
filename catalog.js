@@ -1,9 +1,9 @@
 /* Карта следов: поиск, фильтры, короткий список и выдвижное досье. */
 
 export const CATEGORY_LABELS = {
-  E: { letter: "E", word: "Экология" },
-  S: { letter: "S", word: "Социальное" },
-  G: { letter: "G", word: "Управление" },
+  E: { letter: "E", word: "Environmental (экология)", short: "Environmental" },
+  S: { letter: "S", word: "Social (люди)", short: "Social" },
+  G: { letter: "G", word: "Governance (управление)", short: "Governance" },
 };
 
 export const LINK_LABELS = {
@@ -27,7 +27,7 @@ export const FORM_LABELS = {
 };
 
 const FILTER_OPTIONS = {
-  category: [["all", "Все"], ["E", "E"], ["S", "S"], ["G", "G"]],
+  category: [["all", "Все"], ...Object.keys(CATEGORY_LABELS).map((key) => [key, CATEGORY_LABELS[key].word])],
   mechanism: [
     ["all", "Все"],
     ["expense", "Расходы"],
@@ -86,7 +86,7 @@ function buildSearchIndex(item) {
     item.references,
     ...(item.aliases || []),
     ...(item.chain || []),
-    ...(item.categories || []).map((key) => `${key} ${CATEGORY_LABELS[key]?.word || ""}`),
+    ...(item.categories || []).map((key) => `${key} ${CATEGORY_LABELS[key]?.word || ""} ${CATEGORY_LABELS[key]?.short || ""}`),
     ...(item.links || []).map((key) => `${key} ${LINK_LABELS[key]?.word || ""}`),
     ...(item.mechanisms || []).map((key) => MECHANISM_LABELS[key] || key),
     ...(item.forms || []).map((key) => FORM_LABELS[key] || key),
@@ -136,17 +136,18 @@ function dossierBlock(title, ...children) {
 
 function buildDossierLegend(item) {
   const legend = el("div", { class: "dossier__legend", "aria-label": "Как читать кейс" });
+  const story = item.story || {};
   const standard = extractStandards(item.references)[0];
   const steps = [
-    ["Событие", item.chain?.[0] || item.indicator || "—"],
-    ["Механизм", (item.mechanisms || []).map((key) => MECHANISM_LABELS[key] || key).join(" · ")],
-    ["Правило", standard],
-    ["Отчёты", (item.forms || []).map((key) => FORM_LABELS[key] || key).join(" · ")],
+    ["Что случилось", story.situation || item.chain?.[0] || item.indicator || "—"],
+    ["Вопрос бухгалтера", story.question || "—"],
+    ["Как решили", story.decision || item.accounting || "—"],
+    ["Что изменилось в отчётах", story.impact || Object.values(item.reports || {}).join(" ") || "—"],
   ];
   steps.forEach(([label, value], index) => {
     if (index) legend.append(el("span", { class: "dossier__legend-arrow", "aria-hidden": "true", text: "→" }));
     const caption = standard && index === 2
-      ? el("button", { class: "standard-chip", type: "button", dataset: { standard }, title: `Показать кейсы: ${standard}`, text: value || "—" })
+      ? el("button", { class: "standard-chip", type: "button", dataset: { standard }, title: `Показать кейсы: ${standard}`, text: standard })
       : el("span", { text: value || "—" });
     legend.append(el("span", { class: "dossier__legend-step" }, el("b", { text: label }), caption));
   });
@@ -158,7 +159,7 @@ function buildDossier(item, sourcesById) {
   const tags = el("div", { class: "dossier__tags" });
   for (const key of item.categories || []) {
     const info = CATEGORY_LABELS[key] || { letter: key, word: key };
-    tags.append(el("span", { text: `${info.letter} · ${info.word}` }));
+    tags.append(el("span", { text: `${info.letter} · ${info.short || info.word}` }));
   }
   for (const key of item.links || []) tags.append(el("span", { text: LINK_LABELS[key]?.word || key }));
   for (const key of item.mechanisms || []) tags.append(el("span", { text: MECHANISM_LABELS[key] || key }));
@@ -166,6 +167,18 @@ function buildDossier(item, sourcesById) {
 
   const grid = el("div", { class: "dossier__grid" });
   const main = el("div");
+  const story = item.story || {};
+  const storySteps = [
+    ["Что случилось", story.situation],
+    ["Вопрос бухгалтера", story.question],
+    ["Как решили", story.decision],
+    ["Что изменилось в отчётах", story.impact],
+  ].filter(([, value]) => value);
+  if (storySteps.length) {
+    main.append(dossierBlock("Разбор", ...storySteps.map(([label, value]) =>
+      el("p", {}, el("b", { text: `${label}. ` }), value)
+    )));
+  }
   main.append(
     dossierBlock("Показатель", el("p", { text: item.indicator })),
     dossierBlock(
@@ -281,6 +294,7 @@ export function createCatalog(data) {
     share: document.getElementById("dossier-share"),
     shareStatus: document.getElementById("dossier-share-status"),
     stageTitle: document.getElementById("stage-title"),
+    stageFilters: document.getElementById("stage-filters"),
     lupa: document.getElementById("lupa"),
     mapLupa: document.querySelector(".map-stage__lupa"),
   };
@@ -289,6 +303,7 @@ export function createCatalog(data) {
   for (const source of data.sources || []) sourcesById[source.id] = source;
 
   const state = { ...DEFAULT_FILTERS };
+  const stageButtons = new Map();
   let selectedId = null;
   let expanded = false;
   let lastTrigger = null;
@@ -364,7 +379,9 @@ export function createCatalog(data) {
   }
 
   function caseUrl(id) {
-    return `${location.pathname}?case=${encodeURIComponent(id)}#catalog`;
+    const params = new URLSearchParams(location.search);
+    params.set("case", id);
+    return `${location.pathname}?${params}#catalog`;
   }
 
   function setCaseParam(id) {
@@ -416,6 +433,14 @@ export function createCatalog(data) {
 
   function render() {
     const visible = filterCases(data.cases, state);
+    for (const [key, button] of stageButtons) {
+      const count = visible.filter((item) => (item.categories || []).includes(key)).length;
+      const counter = button.querySelector(".stage-filter__count");
+      if (counter) counter.textContent = String(count);
+      button.classList.toggle("is-active", state.category === key);
+      button.setAttribute("aria-pressed", String(state.category === key));
+      button.setAttribute("aria-label", `${key} · ${CATEGORY_LABELS[key].word}: ${count} кейсов`);
+    }
     const limited = isDefaultView() && !expanded;
     const rows = limited ? visible.slice(0, FEATURED_LIMIT) : visible;
     els.results.replaceChildren(...(rows.length ? rows.map(buildRow) : [emptyState()]));
@@ -465,15 +490,8 @@ export function createCatalog(data) {
   function openCase(id, trigger = null) {
     const item = data.cases.find((entry) => entry.id === id);
     if (!item) return;
-    Object.assign(state, DEFAULT_FILTERS);
-    expanded = false;
-    syncControls();
-    render();
-    const freshRow = document.querySelector(`.case-list [data-open-case="${id}"]`);
-    const sameRow = trigger?.classList?.contains("case-row") && trigger.isConnected;
-    lastTrigger = sameRow ? trigger : freshRow || trigger;
+    lastTrigger = trigger || els.title;
     openDossier(item);
-    els.title.scrollIntoView({ block: "start" });
   }
 
   function closePanel() {
@@ -520,16 +538,17 @@ export function createCatalog(data) {
   });
 
   els.toggle.addEventListener("click", () => {
-    if (getComputedStyle(els.panel).display !== "none") return;
     const open = !els.panel.classList.contains("is-open");
     els.panel.classList.toggle("is-open", open);
     els.toggle.setAttribute("aria-expanded", String(open));
-    if (open) els.panel.querySelector("input")?.focus();
+    if (open) els.panel.querySelector("input:checked")?.focus();
   });
 
   els.dossierClose.addEventListener("click", () => closeDossier({ restoreFocus: true }));
   els.dossier.addEventListener("close", () => {
     selectedId = null;
+    clearCaseParam();
+    setStage(null);
     const trigger = lastTrigger;
     lastTrigger = null;
     if (suppressRestore) {
@@ -584,6 +603,22 @@ export function createCatalog(data) {
   }
 
   if (els.error) els.error.hidden = true;
+  for (const key of ["E", "S", "G"]) {
+    if (!els.stageFilters) break;
+    const button = el("button", {
+      class: `stage-filter stage-filter--${key}`,
+      type: "button",
+      dataset: { stageCategory: key },
+      "aria-pressed": "false",
+    },
+      el("b", { text: key }),
+      el("span", { text: CATEGORY_LABELS[key].short }),
+      el("em", { class: "stage-filter__count", text: "0" })
+    );
+    button.addEventListener("click", () => selectCategory(state.category === key ? "all" : key));
+    els.stageFilters.append(button);
+    stageButtons.set(key, button);
+  }
   renderFilters();
   syncControls();
   render();

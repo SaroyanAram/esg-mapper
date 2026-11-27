@@ -8,11 +8,12 @@
   <meta name="color-scheme" content="light">
   <meta property="og:title" content="ESG Mapper — учебный атлас">
   <meta property="og:description" content="ESG-факторы влияют на прибыль. Разберите 12 кейсов и посмотрите, как событие становится строкой отчёта.">
-  <meta property="og:image" content="assets/og-esg-mapper.jpg">
+  <meta property="og:image" content="https://saroyanaram.github.io/esg-mapper/assets/og-esg-mapper.jpg">
   <meta property="og:url" content="https://SaroyanAram.github.io/esg-mapper/">
   <link rel="canonical" href="https://SaroyanAram.github.io/esg-mapper/">
   <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon.png">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="lens.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -48,19 +49,13 @@
   <main id="main">
     <!-- Акт 1. Светлый стол, Люпа и путь сигнала -->
     <section class="act hero" id="signal" aria-labelledby="hero-title">
-      <div class="hero__backdrop" aria-hidden="true">
-        <video class="hero__motion" autoplay muted loop playsinline preload="metadata" poster="assets/avatar/hero-backdrop.webp">
-          <source src="assets/avatar/atlas-loop.webm" type="video/webm">
-          <source src="assets/avatar/atlas-loop.mp4" type="video/mp4">
-        </video>
-      </div>
       <div class="shell hero__inner">
         <div class="hero__copy">
-          <p class="hero__eyebrow">Живой атлас · интерактивная карта</p>
-          <h1 id="hero-title">Одно ESG-событие меняет три отчёта.</h1>
-          <p class="hero__lede" id="hero-lede">12 кейсов показывают путь от экологического, социального или управленческого сигнала до баланса, ОФР и ОДДС.</p>
+          <p class="hero__eyebrow">Финансовый учёт и ESG · учебный атлас</p>
+          <h1 id="hero-title">Как ESG попадает в отчёт</h1>
+          <p class="hero__lede" id="hero-lede">Компания купила очистное оборудование за 10 млн ₽. Посмотрите, что изменилось в балансе, прибыли и денежных потоках.</p>
           <div class="hero__actions">
-            <a class="btn btn--signal" href="#source">Пойти по следу</a>
+            <a class="btn btn--signal" href="#example">Разобрать покупку</a>
             <a class="btn btn--ghost" href="#quiz">Проверить знания</a>
           </div>
           <ul class="hero__stats" id="hero-stats" aria-label="Объём материала">
@@ -70,14 +65,15 @@
           </ul>
         </div>
 
-        <div class="hero__stage" aria-hidden="true">
+        <section class="lens-desk" aria-labelledby="desk-label">
+          <header class="lens-desk__head">
+            <span>Кейс 02</span><h2 id="desk-label">Очистное оборудование</h2>
+          </header>
+          <div class="hero__stage" aria-hidden="true">
           <svg class="signal-path" viewBox="0 0 620 460" focusable="false">
             <path class="signal-path__track" d="M40 230C150 230 170 120 285 120S420 210 560 210"/>
             <path class="signal-path__track signal-path__track--low" d="M285 120C310 250 340 330 560 330"/>
             <path class="signal-path__track signal-path__track--mid" d="M285 120C350 170 420 260 560 260"/>
-            <circle class="signal-path__dot" r="8">
-              <animateMotion dur="4.2s" repeatCount="indefinite" path="M40 230C150 230 170 120 285 120S420 210 560 210"/>
-            </circle>
           </svg>
 
           <div class="lupa" id="lupa" data-mood="idle">
@@ -95,14 +91,10 @@
             </svg>
           </div>
 
-          <div class="report-stack">
-            <div class="report-cell" data-report="balance"><span>Баланс</span><b>актив · обязательство</b></div>
-            <div class="report-cell" data-report="income"><span>ОФР</span><b>расход · убыток</b></div>
-            <div class="report-cell" data-report="cashflow"><span>ОДДС</span><b>отток · нет оттока</b></div>
           </div>
-        </div>
+          <div class="ledger" id="hero-ledger"></div>
+        </section>
       </div>
-      <p class="hero__scroll" aria-hidden="true">Листайте: дальше главная идея ↓</p>
     </section>
 
     <!-- Главная идея и маршрут -->
@@ -114,7 +106,13 @@
           <p id="thesis-body"></p>
           <div class="channel-grid" id="thesis-channels" aria-label="Три пути от ESG-факта к цифрам"></div>
         </div>
-        <p class="thesis__caveat" id="thesis-caveat"></p>
+        <details class="thesis__note">
+          <summary>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 10.5v6M12 7.4v.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            О границах модели
+          </summary>
+          <p class="thesis__caveat" id="thesis-caveat"></p>
+        </details>
       </div>
     </section>
 
@@ -127,7 +125,7 @@
       <div class="shell">
         <div class="act__head">
           <h2 id="source-title">Сначала происходит событие</h2>
-          <p>Выброс, обучение, штраф, решение правления. ESG-фактор ещё не цифра в отчёте - посмотрите, что будет дальше.</p>
+          <p>Выброс, обучение, штраф, решение правления. Пока это событие, а не сумма в отчёте. Дальше посмотрим, как оно становится цифрой.</p>
         </div>
         <div class="source-grid" id="source-grid"></div>
       </div>
@@ -139,7 +137,7 @@
         <div class="act__head act__head--split">
           <div>
             <h2 id="bridges-title">Четыре механизма учёта</h2>
-            <p>Бухгалтер не отражает «устойчивость» отдельной строкой. Он применяет обычные правила: расход, актив, обязательство или убыток.</p>
+            <p>Бухгалтер не пишет «устойчивость» отдельной строкой. Он выбирает одно из четырёх правил и показывает сумму там, где она действительно возникла.</p>
             <span class="bridge-kicker" aria-hidden="true">событие → правило → отчёт</span>
           </div>
           <p class="bridge-note" id="bridge-note"></p>
@@ -167,7 +165,13 @@
           <div>
             <h2 id="catalog-title" tabindex="-1">12 ситуаций</h2>
             <p id="catalog-count" aria-live="polite">Загрузка каталога…</p>
-            <p class="catalog-hint" id="catalog-hint"></p>
+            <details class="catalog-hint-note">
+              <summary>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 10.5v6M12 7.4v.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Как читать каталог
+              </summary>
+              <p class="catalog-hint" id="catalog-hint"></p>
+            </details>
             <button class="catalog-standard" id="catalog-standard" type="button" hidden></button>
           </div>
           <button class="btn btn--ghost" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
@@ -181,7 +185,7 @@
         </div>
 
         <div class="map-layout">
-          <aside class="map-stage" aria-label="Сцена с линзой">
+          <aside class="map-stage" aria-label="Линза отбора">
             <div class="map-stage__glow" aria-hidden="true"></div>
             <div class="stage-beam" aria-hidden="true"></div>
             <img class="map-stage__paper" src="assets/report-sheet.svg" alt="" width="1400" height="933">
@@ -191,6 +195,7 @@
               <span class="stage-radar__blip stage-radar__blip--s"></span>
               <span class="stage-radar__blip stage-radar__blip--g"></span>
             </div>
+            <div class="stage-filters" id="stage-filters" role="group" aria-label="Отобрать кейсы по букве ESG"></div>
             <div class="map-stage__lupa" aria-hidden="true">
               <svg viewBox="0 0 320 320" focusable="false">
                 <circle class="lupa__frame" cx="160" cy="160" r="104"/>
@@ -207,7 +212,7 @@
               <span data-stage-report="notes">Примечания</span>
             </div>
             <div class="stage-reportline" aria-hidden="true"><span></span></div>
-            <p class="stage-caption" aria-hidden="true">Выбранное событие → строки отчёта</p>
+            <p class="stage-caption">Линза показывает: сколько кейсов осталось после фильтров и какие отчёты затронул выбранный кейс</p>
           </aside>
 
           <div class="map-list">
@@ -221,6 +226,10 @@
             </div>
 
             <p class="filter-legend" id="link-legend"></p>
+            <details class="link-theory" id="link-theory">
+              <summary>Что значит связь П или К?</summary>
+              <div id="link-theory-text"></div>
+            </details>
 
             <div class="filters-panel" id="filters-panel">
               <fieldset class="filter-group" data-filter="category"><legend>ESG</legend></fieldset>

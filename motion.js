@@ -31,7 +31,7 @@ export function initMotion() {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) entry.target.classList.add("is-inview");
+          entry.target.classList.toggle("is-inview", entry.isIntersecting);
         }
       },
       { threshold: 0.12 }

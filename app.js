@@ -16,6 +16,7 @@ const dom = {
   actions: document.querySelector(".hero__actions"),
   lede: document.getElementById("hero-lede"),
   legend: document.getElementById("link-legend"),
+  linkTheory: document.getElementById("link-theory-text"),
   warning: document.getElementById("method-warning"),
   thesisTitle: document.getElementById("thesis-title"),
   thesisBody: document.getElementById("thesis-body"),
@@ -69,6 +70,20 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 
+function icon(paths, className) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", className);
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  for (const item of paths) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", item);
+    svg.append(path);
+  }
+  return svg;
+}
+
 function validate(data) {
   const fail = (message) => { throw new Error(`Некорректные данные: ${message}`); };
   if (!data || typeof data !== "object") fail("пустой ответ");
@@ -118,6 +133,7 @@ function renderStats(data) {
     if (links[1]) links[1].textContent = data.intro.secondaryAction;
   }
   if (dom.legend) dom.legend.textContent = data.intro.legend || "";
+  if (dom.linkTheory) dom.linkTheory.textContent = data.intro.linkTheory || "";
   if (dom.warning) dom.warning.textContent = data.intro.warning || "";
   const description = document.querySelector('meta[name="description"]');
   if (description && data.intro.description) description.setAttribute("content", data.intro.description);
@@ -143,20 +159,40 @@ function renderThesis(data) {
 
 function renderChannels(data) {
   if (!dom.thesisChannels) return;
-  const cards = data.intro.thesis.channels.map((channel, index) =>
-    el("article", { class: "channel-card", dataset: { channel: String(index + 1) } },
-      el("span", { class: "channel-card__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
-      el("h3", { text: channel.title }),
-      el("p", { text: channel.text }),
-      el("p", { class: "channel-card__example", text: channel.example }),
-      el("button", {
-        class: "channel-card__link",
-        type: "button",
-        dataset: { openCase: channel.caseId },
-        text: channel.linkText,
-      })
-    )
-  );
+  const glyphs = [
+    ["M4 18h16", "M6 18v-6h12v6", "M9 12V8h6v4", "M12 4v2", "M4 9l2 1", "M20 9l-2 1"],
+    ["M12 4v15", "M5 19h14", "M5 8h14", "M5 8 2 14h6z", "M19 8l-3 6h6z"],
+    ["M6 3h8l4 4v14H6z", "M14 3v5h4", "M9 13l5 5", "M14 13l-5 5"],
+  ];
+  const cards = data.intro.thesis.channels.map((channel, index) => {
+    const detail = el("details", { class: "channel-card__detail" });
+    detail.append(
+      el("summary", {},
+        el("span", { class: "channel-card__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
+        icon(glyphs[index] || glyphs[0], "channel-card__glyph"),
+        el("h3", { text: channel.title }),
+        el("span", { class: "channel-card__arrow", "aria-hidden": "true" })
+      ),
+      el("div", { class: "channel-card__body" },
+        el("p", { text: channel.text }),
+        el("span", { class: "channel-card__example", text: channel.example })
+      )
+    );
+    const link = el("button", {
+      class: "channel-card__link",
+      type: "button",
+      dataset: { openCase: channel.caseId },
+      "aria-label": `Открыть ${channel.linkText}`,
+      title: channel.linkText,
+    },
+      icon(["M5 12h13", "M13 7l5 5-5 5"], "channel-card__link-icon"),
+      el("span", { class: "visually-hidden", text: channel.linkText })
+    );
+    return el("article", {
+      class: `channel-card channel-card--${index + 1}`,
+      dataset: { channel: String(index + 1) },
+    }, detail, link);
+  });
   dom.thesisChannels.replaceChildren(...cards);
 }
 
@@ -208,19 +244,66 @@ function renderWorkedExample(data) {
   if (dom.exampleKicker) dom.exampleKicker.textContent = example.kicker;
   if (dom.exampleTitle) dom.exampleTitle.textContent = example.title;
   if (dom.exampleFlow) {
-    const steps = example.steps.map((step, index) =>
-      el("article", { class: "example-step" },
-        el("span", { class: "example-step__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
-        el("h3", { text: step.label }),
-        el("p", { text: step.text })
-      )
-    );
+    const glyphs = [
+      ["M12 3v18", "M16.5 7.2c0-1.8-2-2.8-4.5-2.8S7.5 5.4 7.5 7.2c0 4.2 9 2.4 9 6.6 0 1.9-2 2.9-4.5 2.9s-4.5-1-4.5-2.9"],
+      ["M7 3h7l4 4v14H7z", "M14 3v5h4", "M10 13h5", "M10 17h5"],
+      ["M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z", "M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"],
+      ["M4 19h16", "M7 16v-5M12 16V6M17 16v-8"],
+    ];
+    const steps = example.steps.map((step, index) => {
+      const card = el("details", { class: "example-step" },
+        el("summary", { class: "example-step__summary" },
+          el("span", { class: "example-step__index", "aria-hidden": "true", text: String(index + 1).padStart(2, "0") }),
+          icon(glyphs[index] || glyphs[0], "example-step__glyph"),
+          el("h3", { text: step.label }),
+          el("span", { class: "example-step__arrow", "aria-hidden": "true" })
+        ),
+        el("div", { class: "example-step__body" }, el("p", { text: step.text }))
+      );
+      return card;
+    });
     dom.exampleFlow.replaceChildren(...steps);
   }
   if (dom.exampleCta) {
     dom.exampleCta.textContent = example.cta;
     dom.exampleCta.dataset.openCase = example.caseId;
   }
+}
+
+function renderLedger(example) {
+  const host = document.getElementById("hero-ledger");
+  if (!host || !example.reportViews?.length) return;
+  const scene = host.closest(".lens-desk");
+  const selector = el("fieldset", { class: "ledger__switch" },
+    el("legend", { class: "visually-hidden", text: "Выберите форму отчётности" }));
+  const when = el("span", { class: "ledger__when" });
+  const amount = el("strong", { class: "ledger__amount" });
+  const line = el("span", { class: "ledger__line" });
+  const note = el("p", { class: "ledger__note" });
+  const result = el("div", { class: "ledger__sheet", "aria-live": "polite", "aria-atomic": "true" },
+    when, el("div", { class: "ledger__entry" }, amount, line), note);
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  function choose(view, animate) {
+    scene.dataset.report = view.id;
+    when.textContent = view.when;
+    amount.textContent = view.amount;
+    line.textContent = view.line;
+    note.textContent = view.note;
+    if (!animate || reduced.matches) return;
+    result.getAnimations().forEach((animation) => animation.cancel());
+    result.animate([{ transform: "translateY(4px)", opacity: 0.8 }, { transform: "none", opacity: 1 }],
+      { duration: 220, easing: "ease-out" });
+    const ray = scene.querySelector(".signal-path");
+    ray.getAnimations().forEach((animation) => animation.cancel());
+    ray.animate([{ opacity: 0.28 }, { opacity: 1, offset: 0.45 }, { opacity: 0.62 }], { duration: 420 });
+  }
+  example.reportViews.forEach((view, index) => {
+    const input = el("input", { type: "radio", name: "hero-report", value: view.id, checked: index === 0 });
+    selector.append(el("label", {}, input, el("span", { text: view.label })));
+    input.addEventListener("change", () => choose(view, true));
+  });
+  host.replaceChildren(selector, result);
+  choose(example.reportViews[0], false);
 }
 
 function renderSourceCards(data) {
@@ -236,13 +319,13 @@ function renderSourceCards(data) {
       el("span", { class: "source-card__letter", "aria-hidden": "true", text: card.key }),
       el("h3", { text: card.word }),
       el("p", { text: card.caption }),
+      el("span", { class: "source-card__chain", text: card.chain || "" }),
       el("span", { class: "source-card__example", text: card.example || "" }),
-      el("span", { class: "source-card__visual", text: card.visual }),
       el("span", {
         class: "source-card__wave",
         "aria-hidden": "true",
       }, el("i", {}), el("i", {}), el("i", {})),
-      el("span", { class: "source-card__hint", text: "Показать кейсы" })
+      el("span", { class: "source-card__hint", text: card.action || "Показать кейсы" })
     );
     button.addEventListener("click", () => {
       if (catalog) catalog.selectCategory(card.key);
@@ -376,6 +459,7 @@ function init(data) {
   renderChannels(data);
   renderRoadmap(data);
   renderWorkedExample(data);
+  renderLedger(data.intro.workedExample);
   renderSourceCards(data);
   renderMethodology(data.methodology);
   renderSources(data.sources);
@@ -443,7 +527,6 @@ document.addEventListener("click", (event) => {
   if (!trigger) return;
   event.preventDefault();
   closeMenu();
-  history.replaceState(null, "", "#catalog");
   if (catalog) catalog.openCase(trigger.dataset.openCase, trigger);
 });
 

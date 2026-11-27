@@ -39,7 +39,7 @@ export async function initAvatar() {
       for (const host of document.querySelectorAll(".lupa, .map-stage__lupa")) {
         const image = document.createElement("img");
         image.className = "lupa__photo";
-        image.src = file;
+        image.src = host.closest(".lens-desk") ? "assets/avatar/lupa.webp" : file;
         image.alt = "";
         image.setAttribute("aria-hidden", "true");
         image.decoding = "async";
